@@ -13,8 +13,12 @@ create_section_card <- function(title, content) {
 }
 
 # Content sections as separate variables for better maintainability
+
+# -------------------------------------------------------------------------
+# Overview content
+# -------------------------------------------------------------------------
 overview_content <- "
-  <p>The Debt Path Explorer helps analyze how policy changes could affect a country's debt sustainability. It uses the IMF's debt dynamics framework to project how debt-to-GDP ratios evolve under different scenarios.</p>
+  <p>The Ruritania FIMA Explorer helps analyze how innovative policy interventions can affect a country's debt sustainability. It builds upon the IMF's debt dynamics framework to project how debt-to-GDP ratios evolve under different scenarios, with a special focus on climate finance mechanisms and sustainable agriculture initiatives.</p>
   
   <h5>How It Works</h5>
   
@@ -34,35 +38,70 @@ overview_content <- "
     <li>Primary fiscal balance</li>
   </ul>
   
-  <p>For example, you might model how a new carbon credit program could improve the primary balance by 0.2% of GDP annually.</p>
+  <p>The tool allows you to test how implementing specific interventions across two Key Performing Indicators might impact these variables:</p>
+  
+  <h6><b>Protection Gap Interventions</b></h6>
+  <ul>
+    <li><b>Catastrophe Bonds</b>: Model how issuing cat bonds affects borrowing costs and fiscal resilience</li>
+    <li><b>Insurance Premium Subsidies</b>: Analyze fiscal impacts of subsidizing climate risk insurance</li>
+    <li><b>Microinsurance</b>: Estimate how expanding coverage reduces contingent liabilities</li>
+    <li><b>Cross-border Reinsurance</b>: Evaluate effects of international risk-pooling mechanisms</li>
+    <li><b>Compulsory Insurance Coverage</b>: Project impacts of mandatory climate risk coverage</li>
+    <li><b>Insurance Bundling</b>: Model efficiency gains from integrated insurance products</li>
+    <li><b>Risk-based Solvency Capital Requirements</b>: Assess financial stability improvements</li>
+  </ul>
+  
+  <h6><b>Land Use / Regenerative Agriculture Initiatives</b></h6>
+  <ul>
+    <li><b>Silvopasture</b>: Calculate productivity gains from integrated forestry-livestock systems</li>
+    <li><b>Reduced-Till Farming</b>: Estimate cost savings and yield improvements</li>
+    <li><b>Climate-resilient Seeds</b>: Project agricultural output stability during extreme weather</li>
+    <li><b>Managed Grazing</b>: Model sustainable livestock production improvements</li>
+    <li><b>Biological Fertilization</b>: Analyze cost reductions and export value improvements</li>
+    <li><b>Polyculture & Crop Rotation</b>: Assess productivity and input cost impacts</li>
+    <li><b>Organic Certification Practices</b>: Evaluate premium pricing and market access benefits</li>
+    <li><b>Integrated Pest Management</b>: Calculate input cost reductions and yield stability</li>
+  </ul>
   
   <h6><b>3. Resulting Projections</b></h6>
   <p>The tool combines baseline values with policy adjustments to show how debt trajectories might change. This helps answer questions like:</p>
   <ul>
-    <li>How much could sustainability initiatives improve debt sustainability?</li>
-    <li>What impact would lower borrowing costs from green bonds have?</li>
-    <li>How do changes in growth, interest rates, and fiscal balances interact?</li>
+    <li>How might catastrophe bonds reduce fiscal volatility following natural disasters?</li>
+    <li>What debt sustainability improvements could result from agricultural transformation programs?</li>
+    <li>How do climate-resilient investments affect long-term growth and borrowing costs?</li>
+    <li>Which combination of protection mechanisms and agricultural innovations creates optimal debt sustainability?</li>
   </ul>
+  
   <h5>Important Notes</h5>
   <ul>
-    <li>The tool provides a simplified but rigorous starting point for policy analysis</li>
+    <li>This tool provides a simplified but rigorous starting point for analyzing climate finance interventions</li>
     <li>Results should be interpreted as illustrative projections, not precise forecasts</li>
+    <li>The model captures direct fiscal effects but may not fully account for all socioeconomic co-benefits</li>
     <li>For detailed country analysis, this tool should complement rather than replace full DSA frameworks</li>
+    <li>Input parameters should be calibrated using country-specific data whenever possible</li>
   </ul>
 "
+
+# -------------------------------------------------------------------------
+# Key equation content
+# -------------------------------------------------------------------------
 key_equation_content <- "
   <h5>Debt Dynamics Equation:</h5>
   \\[ d_t = \\frac{(1 + r_t)}{(1 + g_t)}d_{t-1} - pb_t \\]
 
   <h5>Where:</h5>
   <ul>
-    <li>\\( d_t \\) = public-debt-to-GDP ratio at time t</li>
-    <li>\\( r_t \\) = real effective interest rate</li>
-    <li>\\( g_t \\) = real GDP growth rate</li>
-    <li>\\( pb_t \\) = primary-balance-to-GDP ratio</li>
+    <li>\\( d_t \\) = Debt as % of GDP at time t</li>
+    <li>\\( d_{t-1} \\) = Debt as % of GDP at time t - 1</li>
+    <li>\\( r_t \\) = Nominal interest rate (%) for time t</li>
+    <li>\\( g_t \\) = Nominal GDP growth (%) for time t</li>
+    <li>\\( pb_t \\) = Primary balance as % of GDP at time t</li>
     <li>\\( t \\) = time period</li>
   </ul>"
 
+# -------------------------------------------------------------------------
+# Methodology content
+# -------------------------------------------------------------------------
 methodology_content <- "
   <p>The computation process for debt dynamics analysis is fundamentally grounded in three essential variables obtained from the IMF World Economic Outlook database: Gross domestic product, constant prices, General government primary net lending/borrowing (primary balance), and General government gross debt. This comprehensive framework enables researchers and policymakers to analyze the evolution of public debt over time, taking into account the complex interplay between economic growth, interest rates, and fiscal policy decisions. The methodology's strength lies in its ability to decompose debt dynamics into its constituent components, allowing for a detailed understanding of how different macroeconomic factors contribute to changes in the debt-to-GDP ratio.</p>
 

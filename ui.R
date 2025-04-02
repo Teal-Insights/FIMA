@@ -16,6 +16,47 @@ suppressPackageStartupMessages({
 source(file = "components/ui/ui_footer_component.R")
 source(file = "components/ui/ui_documentation_component.R")
 
+
+# -------------------------------------------------------------------------
+# Define the interventions for each KPI
+intervention_data <- list(
+  protection_gap = c("catastrophe_bonds", 
+                     "insurance_premium_subsidies", 
+                     "microinsurance", 
+                     "cross_border_reinsurance", 
+                     "compulsory_insurance_coverage", 
+                     "insurance_bundling", 
+                     "risk_based_solvency_capital_requirements"),
+  
+  land_use = c("silvopasture", 
+               "reduced_till_farming", 
+               "dams_and_seawalls", 
+               "restoring_degraded_forest", 
+               "precision_agriculture", 
+               "agroforestry", 
+               "large_and_medium_scale_irrigation", 
+               "climate_resilient_seeds")
+)
+
+# Create nice display names for interventions
+intervention_display_names <- list(
+  catastrophe_bonds = "Catastrophe Bonds",
+  insurance_premium_subsidies = "Insurance Premium Subsidies",
+  microinsurance = "Microinsurance",
+  cross_border_reinsurance = "Cross-border Reinsurance",
+  compulsory_insurance_coverage = "Compulsory Insurance Coverage",
+  insurance_bundling = "Insurance Bundling",
+  risk_based_solvency_capital_requirements = "Risk-based Solvency Capital Requirements",
+  silvopasture = "Silvopasture",
+  reduced_till_farming = "Reduced-Till Farming",
+  dams_and_seawalls = "Dams and Seawalls",
+  restoring_degraded_forest = "Restoring Degraded Forest",
+  precision_agriculture = "Precision Agriculture",
+  agroforestry = "Agroforestry",
+  large_and_medium_scale_irrigation = "Large and Medium Scale Irrigation",
+  climate_resilient_seeds = "Climate-resilient Seeds"
+)
+
 # -------------------------------------------------------------------------
 # UI
 # -------------------------------------------------------------------------
@@ -78,11 +119,12 @@ ui <- bslib::page_navbar(
           tags$div(
             class = "guide-box p-3 mb-0 border rounded",
             h5("KPI"),
-            selectInput(
-              inputId = "id_kpi",
+            checkboxGroupInput(
+              inputId = "kpi_selection",
               label = NULL,
-              choices = c("Protection Gap", "Regenerative Agriculture"),
-              selected = "Protection Gap"
+              choices = c("Protection Gap" = "protection_gap", 
+                          "Land Use" = "land_use"),
+              selected = NULL
             )
           ),
           hr(),
@@ -91,48 +133,33 @@ ui <- bslib::page_navbar(
             class = "guide-box p-3 mb-0 border rounded",
             h5("Interventions"),
             br(),
-            # Conditional panels for interventions based on KPI selection
             conditionalPanel(
-              condition = "input.id_kpi == 'Protection Gap'",
+              condition = "input.kpi_selection.includes('protection_gap')",
+              h5("Protection Gap"),
+              br(),
               checkboxGroupInput(
-                inputId = "id_intervention_pg",
+                inputId = "protection_gap_interventions",
                 label = NULL,
-                choices = c(
-                  "Catastrophe Bonds" = "catastrophe_bonds",
-                  "Insurance Premium Subsidies" = "insurance_premium_subsidies",
-                  "Microinsurance" = "microinsurance",
-                  "Cross-border reinsurance" = "cross_border_reinsurance",
-                  "Compulsory insurance coverage" = "compulsory_insurance_coverage",
-                  "Insurance bundling" = "insurance_bundling",
-                  "Risk-based solvency capital requirements" = "risk_based_solvency"
+                choices = setNames(
+                  intervention_data$protection_gap,
+                  sapply(intervention_data$protection_gap, function(x) intervention_display_names[[x]])
                 )
               )
             ),
-            # Land Use conditional panel (renamed from Regenerative Agriculture)
             conditionalPanel(
-              condition = "input.id_kpi == 'Regenerative Agriculture'",
+              condition = "input.kpi_selection.includes('land_use')",
+              hr(),
+              h5("Land Use"),
+              br(),
               checkboxGroupInput(
-                inputId = "id_intervention_ra",
+                inputId = "land_use_interventions",
                 label = NULL,
-                choices = c(
-                  "Silvopasture" = "Silvopasture",
-                  "Reduced-Till Farming" = "reduced_till_farming",
-                  "Climate-resilient seeds" = "climate_resilient_seeds",
-                  "Managed Grazing" = "managed_grazing",
-                  "Biological Fertilization" = "biological_fertilization",
-                  "Polyculture & Crop Rotation" = "polyculture_crop_rotation",
-                  "Organic Certification Practices" = "organic_certification",
-                  "Integrated Pest Management" = "integrated_pest_management"
+                choices = setNames(
+                  intervention_data$land_use,
+                  sapply(intervention_data$land_use, function(x) intervention_display_names[[x]])
                 )
               )
             )
-          ),
-          hr(),
-          # Added: Show/Hide control for all tables
-          tags$div(
-            class = "guide-box p-3 mb-0 border rounded",
-            h5("Display Indicators"),
-            checkboxInput("show_tables", "Show Tables", value = TRUE)
           )
         ),
         # Main content area
@@ -140,76 +167,7 @@ ui <- bslib::page_navbar(
         # -------------------------------------------------------------------------
         # interventions - shocking
         # -------------------------------------------------------------------------
-        layout_column_wrap(
-          width = 1,
-          # interventions - shocking
-          # -------------------------------------------------------------------------
-          conditionalPanel(
-            condition = "input.show_tables == true",
-            # interventions - shocking
-            # -------------------------------------------------------------------------
-            # Nominal GDP growth
-            card(
-              full_screen = TRUE,
-              card_header(
-                # title
-                div(
-                  class = "d-flex justify-content-between align-items-center",
-                  "Nominal GDP growth",
-                  # Constant value controls (shown when interventions selected)
-                  uiOutput("ngdp_constant_controls")
-                ),
-                # class
-                class = "bg-primary text-white",
-              ),
-              # output
-              card_body(
-                # Table output with editable cells for interventions
-                uiOutput("ngdp_inputs")
-              )
-            ),
-            # Interest rate
-            card(
-              full_screen = TRUE,
-              card_header(
-                # title
-                div(
-                  class = "d-flex justify-content-between align-items-center",
-                  "Interest rate",
-                  # Constant value controls (shown when interventions selected)
-                  uiOutput("interest_constant_controls")
-                ),
-                # class
-                class = "bg-primary text-white",
-              ),
-              # output
-              card_body(
-                # Table output with editable cells for interventions
-                uiOutput("interest_inputs")
-              )
-            ),
-            # Primary balance
-            card(
-              full_screen = TRUE,
-              card_header(
-                # title
-                div(
-                  class = "d-flex justify-content-between align-items-center",
-                  "Primary balance",
-                  # Constant value controls (shown when interventions selected)
-                  uiOutput("pb_constant_controls")
-                ),
-                # class
-                class = "bg-primary text-white",
-              ),
-              # output
-              card_body(
-                # Table output with editable cells for interventions
-                uiOutput("pb_inputs")
-              )
-            )
-          )
-        ),
+      
         # -------------------------------------------------------------------------
         # Result output
         # -------------------------------------------------------------------------
@@ -239,7 +197,7 @@ ui <- bslib::page_navbar(
                 # class
                 class = "bg-primary text-white",
               ),
-              plotOutput(outputId = "home_primary_balance")
+              plotOutput(outputId = "home_ngdp_growth")
             )
           )
         ),
@@ -258,7 +216,7 @@ ui <- bslib::page_navbar(
                 # class
                 class = "bg-primary text-white",
               ),
-              plotOutput(outputId = "home_debt_ngdp")
+              plotOutput(outputId = "home_ir_revenue")
             ),
             # Primary Balance, % of Nominal GDP
             card(
@@ -269,7 +227,7 @@ ui <- bslib::page_navbar(
                 # class
                 class = "bg-primary text-white",
               ),
-              plotOutput(outputId = "home_primary_balance")
+              plotOutput(outputId = "home_pb")
             )
           )
         ),
@@ -283,7 +241,7 @@ ui <- bslib::page_navbar(
     bslib::card(
       bslib::card_header("Data Explorer"),
       bslib::card_body(
-        DT::dataTableOutput("data_table")
+        reactable::reactableOutput("data_table")
       )
     )
   ),
