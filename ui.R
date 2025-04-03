@@ -118,7 +118,7 @@ ui <- bslib::page_navbar(
           # KPI selector
           tags$div(
             class = "guide-box p-3 mb-0 border rounded",
-            h5("KPI"),
+            h5("KPIs"),
             checkboxGroupInput(
               inputId = "kpi_selection",
               label = NULL,
@@ -129,13 +129,12 @@ ui <- bslib::page_navbar(
           ),
           hr(),
           # Interventions selector
-          tags$div(
-            class = "guide-box p-3 mb-0 border rounded",
-            h5("Interventions"),
-            br(),
-            conditionalPanel(
-              condition = "input.kpi_selection.includes('protection_gap')",
+          conditionalPanel(
+            condition = "input.kpi_selection.includes('protection_gap')",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
               h5("Protection Gap"),
+              h6("(Interventions)"),
               br(),
               checkboxGroupInput(
                 inputId = "protection_gap_interventions",
@@ -145,11 +144,16 @@ ui <- bslib::page_navbar(
                   sapply(intervention_data$protection_gap, function(x) intervention_display_names[[x]])
                 )
               )
-            ),
-            conditionalPanel(
-              condition = "input.kpi_selection.includes('land_use')",
-              hr(),
+            )
+            
+          ),
+          conditionalPanel(
+            condition = "input.kpi_selection.includes('land_use')",
+            hr(),
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
               h5("Land Use"),
+              h6("(Interventions)"),
               br(),
               checkboxGroupInput(
                 inputId = "land_use_interventions",
@@ -175,8 +179,19 @@ ui <- bslib::page_navbar(
           width = NULL,
           heights_equal = "row",
           layout_column_wrap(
-            width = 1 / 2,
+            width = 1 / 3,
             heights_equal = "row",
+            # credit rating
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Credit rating",
+                # class
+                class = "bg-primary text-white",
+              ),
+              plotOutput(outputId = "home_credit_rating")
+            ),
             # Debt-NGDP ratio, %
             card(
               full_screen = TRUE,

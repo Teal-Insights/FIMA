@@ -61,22 +61,111 @@ server <- function(input, output, session) {
   })
   
   server_data_alternative_viz <- reactive({
-    req(server_data_alternative())
-    fima_alternative_viz(
-      data_baseline = server_data_baseline,
-      data_alternative = server_data_alternative()
+    # Try to generate the alternative visualization data
+    result <- tryCatch(
+      {
+        data <- fima_alternative_viz(
+          data_baseline = server_data_baseline,
+          data_alternative = server_data_alternative()
+        )
+        
+        # Check if the returned data exists (is not NULL or NA)
+        if (is.null(data) || all(is.na(data))) {
+          # Return baseline data if result is NULL or all NA
+          server_data_baseline %>% mutate(group = "Baseline Scenario")  
+        } else {
+          data  # Return the alternative viz data if it exists
+        }
+      },
+      error = function(e) {
+        # Return the baseline data in case of error
+        server_data_baseline %>% mutate(group = "Baseline Scenario")
+      },
+      warning = function(w) {
+        # Continue with the result
+        NULL
+      }
     )
+    
+    # If result is NULL after warning handler, return baseline
+    if (is.null(result)) {
+      server_data_baseline %>% mutate(group = "Baseline Scenario")
+    } else {
+      result
+    }
   })
   
+  # observe({
+  #   data <- server_data_alternative_viz()
+  #   print("Class of server_data_alternative_viz:")
+  #   print(class(data))
+  #   # If you want to see structure as well
+  #   str(data)
+  # })
+  # -------------------------------------------------------------------------
+  # render data - data tab
+  # -------------------------------------------------------------------------
+  server_data_tab <- reactive({
+    result <- tryCatch(
+      {
+        data <- fima_alternative_table(
+          data_baseline = server_data_baseline,
+          data_alternative = server_data_alternative()
+        )
+        # Check if the returned data exists (is not NULL or NA)
+        if (is.null(data) || all(is.na(data))) {
+          # Return baseline data if result is NULL or all NA
+          server_data_baseline %>%
+            select(
+              year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
+              primary_net_lending_billions,primary_net_lending_pct_gdp,
+              dspb_pct_ngdp,interest_payments_billions,interest_payments_pct_revenue,
+              gdp_current_prices_billions,gdp_growth_pct,revenue_billions,credit_rating
+            ) %>% 
+            filter(year < 2024)  
+        } else {
+          data
+        }
+      },
+      error = function(e) {
+        # Return the baseline data in case of error
+        server_data_baseline %>%
+          select(
+            year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
+            primary_net_lending_billions,primary_net_lending_pct_gdp,
+            dspb_pct_ngdp,interest_payments_billions,interest_payments_pct_revenue,
+            gdp_current_prices_billions,gdp_growth_pct,revenue_billions,credit_rating
+          ) %>% 
+          filter(year < 2024)  
+      },
+      warning = function(w) {
+        # Continue with the result
+        NULL
+      }
+    )
+    # If result is NULL after warning handler, return baseline
+    if (is.null(result)) {
+      server_data_baseline %>%
+        select(
+          year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
+          primary_net_lending_billions,primary_net_lending_pct_gdp,
+          dspb_pct_ngdp,interest_payments_billions,interest_payments_pct_revenue,
+          gdp_current_prices_billions,gdp_growth_pct,revenue_billions,credit_rating
+        ) %>% 
+        filter(year < 2024)  
+    } else {
+      result
+    }
+  })
   output$data_table <- renderReactable({
-    # Process the data directly within renderReactable
-    processed_data <- server_data_alternative() %>% 
-      pivot_longer(
-        cols = -year,  
-        names_to = "indicators",
-        values_to = "values"
-      ) %>% 
-      mutate(values = round(x = values, digits = 1)) %>% 
+    processed_data <- server_data_tab() %>% 
+      # Round all numeric values except 'year'
+      mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
+      # Convert all variables to character
+      mutate(across(everything(), as.character)) %>%
+      # Pivot longer
+      pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
+      # Pivot wider
       pivot_wider(names_from = year, values_from = values) %>% 
       # Clean up indicators names
       mutate(
@@ -85,7 +174,9 @@ server <- function(input, output, session) {
         indicators = str_to_title(str_replace_all(indicators, "_", " ")),
         indicators = str_replace(indicators, "Gdp", "GDP"),
         indicators = str_replace(indicators, "Of", "of"),
-        indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %")
+        indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
+        indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
+        indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
       )
     
     # Return reactable with options
@@ -105,7 +196,7 @@ server <- function(input, output, session) {
       columns = list(
         indicators = colDef(
           minWidth = 200,  # Set minimum width for indicators column
-          width = 300,     # Set default width for indicators column
+          width = 350,     # Set default width for indicators column
           sticky = "left"  # Freeze the indicators column on the left when scrolling
         )
       )
@@ -114,6 +205,62 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   # visualizations - Home
   # -------------------------------------------------------------------------
+  # Credit rating 
+  output$home_credit_rating <- renderPlot({
+    server_data_alternative_viz() %>% 
+      select(c(year, credit_rating_number, group)) %>% 
+      mutate(
+        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
+      ) %>% 
+      ggplot(aes(x = year, y = credit_rating_number, color = group, linetype = group, group = group)) +
+      geom_line(linewidth = 1.25) +
+      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
+      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
+      labs(
+        title = "Credit Rating",
+        # subtitle = "Comparison over time",
+        x = "",
+        y = "")  +
+      scale_x_continuous(
+        breaks = scales::pretty_breaks(n = 10),
+        expand = c(0,0)
+      ) +
+      scale_y_continuous(
+        breaks = 1:22,
+        labels = fima_cra_y_axis(y_values = 1:22)
+      ) +
+      theme_minimal() +
+      theme(
+        # Legend settings for one line
+        legend.position = "bottom",
+        legend.direction = "horizontal",
+        legend.box = "horizontal",
+        legend.box.just = "center",
+        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
+        legend.spacing.x = unit(0.2, "cm"),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        # Make the legend key wider to avoid wrapping
+        legend.key.width = unit(1, "cm"),
+        # Other theme elements
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(face = "bold", size = 14),
+        # Increase axis text size
+        axis.text.x = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 12),
+        axis.title = element_text(face = "bold", size = 12),
+        # Add solid line at the bottom
+        axis.line.x = element_line(color = "black", linewidth = 0.5),
+        # Remove default x-axis line to replace with our custom one
+        panel.border = element_blank(),
+        # Ensure ticks are visible
+        axis.ticks.x = element_line(color = "black"),
+        axis.ticks.length.x = unit(0.25, "cm"),
+        panel.grid.major.x = element_blank()
+      )+
+      guides(color = guide_legend(nrow = 1)) +
+      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+  })
   # General government gross debt (% GDP)
   output$home_debt_ngdp <- renderPlot({
     server_data_alternative_viz() %>% 
@@ -121,12 +268,13 @@ server <- function(input, output, session) {
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = gross_debt_pct_gdp, color = group, group = group)) +
-      geom_line(linewidth = 1) +
-      scale_color_brewer(palette = "Set1") +
+      ggplot(aes(x = year, y = gross_debt_pct_gdp, color = group, linetype = group, group = group)) +
+      geom_line(linewidth = 1.25) +
+      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
+      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
       labs(
         title = "General government gross debt (% of Nominal GDP)",
-        subtitle = "Comparison over time",
+        # subtitle = "Comparison over time",
         x = "",
         y = "")  +
       scale_x_continuous(
@@ -143,12 +291,16 @@ server <- function(input, output, session) {
         legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
         legend.spacing.x = unit(0.2, "cm"),
         legend.title = element_blank(),
+        legend.text = element_text(size = 12),
         # Make the legend key wider to avoid wrapping
         legend.key.width = unit(1, "cm"),
         # Other theme elements
         panel.grid.minor = element_blank(),
         plot.title = element_text(face = "bold", size = 14),
-        axis.title = element_text(face = "bold"),
+        # Increase axis text size
+        axis.text.x = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 12),
+        axis.title = element_text(face = "bold", size = 12),
         # Add solid line at the bottom
         axis.line.x = element_line(color = "black", linewidth = 0.5),
         # Remove default x-axis line to replace with our custom one
@@ -169,12 +321,13 @@ server <- function(input, output, session) {
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = gdp_growth_pct, color = group, group = group)) +
-      geom_line(linewidth = 1) +
-      scale_color_brewer(palette = "Set1") +
+      ggplot(aes(x = year, y = gdp_growth_pct, color = group, linetype = group, group = group)) +
+      geom_line(linewidth = 1.25) +
+      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
+      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
       labs(
         title = "Nominal GDP growth (%)",
-        subtitle = "Comparison over time",
+        # subtitle = "Comparison over time",
         x = "",
         y = "")  +
       scale_x_continuous(
@@ -191,12 +344,16 @@ server <- function(input, output, session) {
         legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
         legend.spacing.x = unit(0.2, "cm"),
         legend.title = element_blank(),
+        legend.text = element_text(size = 12),
         # Make the legend key wider to avoid wrapping
         legend.key.width = unit(1, "cm"),
         # Other theme elements
         panel.grid.minor = element_blank(),
         plot.title = element_text(face = "bold", size = 14),
-        axis.title = element_text(face = "bold"),
+        # Increase axis text size
+        axis.text.x = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 12),
+        axis.title = element_text(face = "bold", size = 12),
         # Add solid line at the bottom
         axis.line.x = element_line(color = "black", linewidth = 0.5),
         # Remove default x-axis line to replace with our custom one
@@ -217,12 +374,13 @@ server <- function(input, output, session) {
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = interest_payments_pct_revenue, color = group, group = group)) +
-      geom_line(linewidth = 1) +
-      scale_color_brewer(palette = "Set1") +
+      ggplot(aes(x = year, y = interest_payments_pct_revenue, color = group, linetype = group, group = group)) +
+      geom_line(linewidth = 1.25) +
+      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
+      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
       labs(
         title = "General government interest payments (% Revenue)",
-        subtitle = "Comparison over time",
+        # subtitle = "Comparison over time",
         x = "",
         y = "")  +
       scale_x_continuous(
@@ -239,12 +397,16 @@ server <- function(input, output, session) {
         legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
         legend.spacing.x = unit(0.2, "cm"),
         legend.title = element_blank(),
+        legend.text = element_text(size = 12),
         # Make the legend key wider to avoid wrapping
         legend.key.width = unit(1, "cm"),
         # Other theme elements
         panel.grid.minor = element_blank(),
         plot.title = element_text(face = "bold", size = 14),
-        axis.title = element_text(face = "bold"),
+        # Increase axis text size
+        axis.text.x = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 12),
+        axis.title = element_text(face = "bold", size = 12),
         # Add solid line at the bottom
         axis.line.x = element_line(color = "black", linewidth = 0.5),
         # Remove default x-axis line to replace with our custom one
@@ -265,12 +427,13 @@ server <- function(input, output, session) {
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = primary_net_lending_pct_gdp, color = group, group = group)) +
-      geom_line(linewidth = 1) +
-      scale_color_brewer(palette = "Set1") +
+      ggplot(aes(x = year, y = primary_net_lending_pct_gdp, color = group, linetype = group, group = group)) +
+      geom_line(linewidth = 1.25) +
+      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
+      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
       labs(
         title = "General government primary balance (% of Nominal GDP)",
-        subtitle = "Comparison over time",
+        # subtitle = "Comparison over time",
         x = "",
         y = "")  +
       scale_x_continuous(
@@ -287,12 +450,16 @@ server <- function(input, output, session) {
         legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
         legend.spacing.x = unit(0.2, "cm"),
         legend.title = element_blank(),
+        legend.text = element_text(size = 12),
         # Make the legend key wider to avoid wrapping
         legend.key.width = unit(1, "cm"),
         # Other theme elements
         panel.grid.minor = element_blank(),
         plot.title = element_text(face = "bold", size = 14),
-        axis.title = element_text(face = "bold"),
+        # Increase axis text size
+        axis.text.x = element_text(face = "bold", size = 12),
+        axis.text.y = element_text(face = "bold", size = 12),
+        axis.title = element_text(face = "bold", size = 12),
         # Add solid line at the bottom
         axis.line.x = element_line(color = "black", linewidth = 0.5),
         # Remove default x-axis line to replace with our custom one

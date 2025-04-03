@@ -105,8 +105,6 @@ fima_data_interventions <- function(chosen_interventions){
   return(data_interventions)
 }
 
-
-
 # ends: -------------------------------------------------------------------
 
 
