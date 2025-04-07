@@ -103,7 +103,55 @@ server <- function(input, output, session) {
   #   str(data)
   # })
   # -------------------------------------------------------------------------
-  # render data - data tab
+  # render data - data tab - Baseline Scenario
+  # -------------------------------------------------------------------------
+  output$data_table_baseline <- renderReactable({
+    processed_data <- server_data_baseline %>% 
+      # Round all numeric values except 'year'
+      mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
+      # Convert all variables to character
+      mutate(across(everything(), as.character)) %>%
+      # Pivot longer
+      pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
+      # Pivot wider
+      pivot_wider(names_from = year, values_from = values) %>% 
+      # Clean up indicators names
+      mutate(
+        indicators = str_replace(indicators, "_", " "),
+        indicators = str_replace(indicators, "pct", "% of"),
+        indicators = str_to_title(str_replace_all(indicators, "_", " ")),
+        indicators = str_replace(indicators, "Gdp", "GDP"),
+        indicators = str_replace(indicators, "Of", "of"),
+        indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
+        indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
+        indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
+      )
+    
+    # Return reactable with options
+    reactable(
+      processed_data,
+      pagination = FALSE,  # Disable pagination
+      showPagination = FALSE,  # Hide pagination controls
+      defaultPageSize = 500,  # Show a large number of rows by default
+      showPageInfo = FALSE,  # Hide page info (e.g., "1-12 of 12 rows")
+      filterable = TRUE,
+      searchable = TRUE,
+      striped = TRUE,
+      highlight = TRUE,
+      compact = TRUE,
+      wrap = FALSE,
+      resizable = TRUE,
+      columns = list(
+        indicators = colDef(
+          minWidth = 200,  # Set minimum width for indicators column
+          width = 350,     # Set default width for indicators column
+          sticky = "left"  # Freeze the indicators column on the left when scrolling
+        )
+      )
+    )
+  })
+  # -------------------------------------------------------------------------
+  # render data - data tab - Alternative Scenario
   # -------------------------------------------------------------------------
   server_data_tab <- reactive({
     result <- tryCatch(
@@ -157,7 +205,7 @@ server <- function(input, output, session) {
       result
     }
   })
-  output$data_table <- renderReactable({
+  output$data_table_alternative <- renderReactable({
     processed_data <- server_data_tab() %>% 
       # Round all numeric values except 'year'
       mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
