@@ -76,7 +76,9 @@ ui <- bslib::page_navbar(
     ),
     span(
       class = "header-title",
-      "FIMA Explorer"
+      "FIMA Explorer", 
+      HTML("&nbsp;&nbsp;&nbsp;&nbsp;"), # This adds four spaces
+      span(style = "color: red;", "(The app is under development)")
     )
   ),
   
@@ -121,7 +123,41 @@ ui <- bslib::page_navbar(
         bslib::card_header("About the FIMA Explorer App"),
         bslib::card_body(
           fillable = TRUE,
-          fill = TRUE
+          fill = TRUE,
+          # About the app
+          h5("About the app"),
+          p(
+            "FIMA Explorer App helps to analysis the impact of interventions based on their
+            Key Performance Indicators (KPIs) on key indicators such as:
+            Credit Rating, Debt-GDP ratio, %, Nominal GDP growth (%),
+            Interest Payments % Revenue and Primary Balance, % of Nominal GDP. 
+            For instance, does a country benefit from improved Protection Gap / 
+            Land use in terms of improved Credit Rating, lower Debt-GDP ratio, %,
+            as well well increased Nominal GDP growth (%)."
+          ),
+          # step 1
+          h5("Step 1 : Select Country"),
+          p(
+            "Under select country dropdown, select country of your choice 
+          (preferabbly Ruritania), it will display vulnerabilities it is exposed
+          to and the checkboxes of Key Performance Indicators (KPIs)."
+          ),
+          
+          # step 2
+          h5("Step 2 : Check KPI(s) of choice"),
+          p(
+            "Under KPI checkboxes, check KPI(s) of choice. This will enable
+            respective interventions to display thereafter."
+          ),
+          
+          # step 3
+          h5("Step 3 : Interact with Interventions"),
+          p(
+            "Once the interventions are displayed (by default they are all 
+            checked), one can first check the 'Analysis' tab then uncheck 
+            interventions (If not need into the result) and then check the 
+            'Analysis' tab to see if there is any deviation."
+          ),
         )
       ),
       # Risk Assessment
@@ -135,21 +171,24 @@ ui <- bslib::page_navbar(
           #---------------
           # select country
           #---------------
-          shinyWidgets::pickerInput(
-            inputId = "id_country",
-            label = h5("Country"),
-            choices = c("Aurelia", "Ruritania", "Xenon"),
-            options = shinyWidgets::pickerOptions(
-              actionsBox = TRUE,
-              size = 10,
-              selectedTextFormat = "count > 3",
-              liveSearch = TRUE,
-              liveSearchStyle = "contains",
-              liveSearchPlaceholder = "Select country...",
-              title = "Select country..."
-            ),
-            multiple = FALSE,
-            selected = NULL
+          tags$div(
+            class = "guide-box p-2 mb-0 border rounded",
+            shinyWidgets::pickerInput(
+              inputId = "id_country",
+              label = h5("Country"),
+              choices = c("Aurelia", "Ruritania", "Xenon"),
+              options = shinyWidgets::pickerOptions(
+                actionsBox = TRUE,
+                size = 10,
+                selectedTextFormat = "count > 3",
+                liveSearch = TRUE,
+                liveSearchStyle = "contains",
+                liveSearchPlaceholder = "Select country...",
+                title = "Select country..."
+              ),
+              multiple = FALSE,
+              selected = NULL
+            )
           ),
           #---------------
           # Vulnerability
@@ -158,12 +197,15 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "input.id_country == 'Ruritania'",
             tags$div(
-              tags$h5("Vulnerabilities:"),
-              tags$ul(
-                tags$li("Vulnerability 1"),
-                tags$li("Vulnerability 2"),
-                tags$li("Vulnerability 3"),
-                tags$li("Vulnerability 4")
+              class = "guide-box p-2 mb-0 border rounded",
+              tags$div(
+                tags$h5("Vulnerabilities"),
+                tags$ul(
+                  tags$li("Vulnerability 1"),
+                  tags$li("Vulnerability 2"),
+                  tags$li("Vulnerability 3"),
+                  tags$li("Vulnerability 4")
+                )
               )
             )
           ),
@@ -173,14 +215,17 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "input.id_country == 'Ruritania'",
             # KPIs section
-            h5("KPIs"),
-            checkboxGroupInput(
-              inputId = "kpi_selection",
-              label = NULL,
-              choices = c("Protection Gap" = "protection_gap", 
-                          "Land Use" = "land_use",
-                          "KPI 3" = "kpi_3"),
-              selected = NULL
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("KPIs"),
+              checkboxGroupInput(
+                inputId = "kpi_selection",
+                label = NULL,
+                choices = c("Protection Gap" = "protection_gap", 
+                            "Land Use" = "land_use",
+                            "KPI 3" = "kpi_3"),
+                selected = NULL
+              )
             )
           )
         )
@@ -211,11 +256,9 @@ ui <- bslib::page_navbar(
                 selected = intervention_data$protection_gap
               )
             )
-            
           ),
           conditionalPanel(
             condition = "input.kpi_selection.includes('land_use')",
-            hr(),
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Land Use"),
@@ -233,7 +276,7 @@ ui <- bslib::page_navbar(
             )
           )
         )
-      ),
+      )
     )
   ),
   # -------------------------------------------------------------------------
@@ -324,6 +367,20 @@ ui <- bslib::page_navbar(
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
+          tags$div(
+            class = "guide-box p-2 mb-0 border rounded",
+            tags$p(h5(icon("info-circle"), "Overview:"), class = "fw-bold"),
+            tags$p(
+              "In Alternative Scenario, the projections start from 2024. 
+              The values before 2024 in Alternative Scenarios are baseline values 
+              hence similar to the Baseline Scenario values."
+            )
+          ),
+          # download data
+          tags$div(
+            class = "guide-box p-2 mb-0 border rounded",
+            downloadButton("download_data", "Download Data")
+          )
         ),
         layout_column_wrap(
           width = 1,
