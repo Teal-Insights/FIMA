@@ -3,6 +3,7 @@
 suppressPackageStartupMessages({
   library(tidyverse)
   library(reactable)
+  library(openxlsx)
 })
 # turn off warnings
 options(warn = -1)
@@ -13,6 +14,7 @@ source(file = "R/server/fima_baseline_scenario.R")
 source(file = "R/server/fima_server_interventions.R")
 source(file = "R/server/fima_alternative_scenario.R")
 
+# -------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
 # server
@@ -107,6 +109,20 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   output$data_table_baseline <- renderReactable({
     processed_data <- server_data_baseline %>% 
+      select(
+        # year
+        year, 
+        # gross debt 
+        gross_debt_pct_gdp,
+        # primary balance
+        primary_net_lending_pct_gdp,
+        # interest payment
+        interest_payments_pct_revenue,
+        # nominal GDP
+        gdp_growth_pct,
+        # credit rating
+        credit_rating
+      ) %>% 
       # Round all numeric values except 'year'
       mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
       # Convert all variables to character
@@ -207,6 +223,20 @@ server <- function(input, output, session) {
   })
   output$data_table_alternative <- renderReactable({
     processed_data <- server_data_tab() %>% 
+      select(
+        # year
+        year, 
+        # gross debt 
+        gross_debt_pct_gdp,
+        # primary balance
+        primary_net_lending_pct_gdp,
+        # interest payment
+        interest_payments_pct_revenue,
+        # nominal GDP
+        gdp_growth_pct,
+        # credit rating
+        credit_rating
+      ) %>% 
       # Round all numeric values except 'year'
       mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
       # Convert all variables to character
@@ -251,7 +281,113 @@ server <- function(input, output, session) {
     )
   })
   # -------------------------------------------------------------------------
-  # visualizations - Home
+  # download data - data tab
+  # -------------------------------------------------------------------------
+  output$download_data <- downloadHandler(
+    filename = function() {
+      paste("FIMA_Explorer_Data_Ruritania",".xlsx", sep = "")
+    },
+    content = function(file) {
+      # Create a new workbook
+      wb <- createWorkbook()
+      baseline_data <- server_data_baseline %>% 
+        select(
+          # year
+          year, 
+          # gross debt 
+          gross_debt_pct_gdp,
+          # primary balance
+          primary_net_lending_pct_gdp,
+          # interest payment
+          interest_payments_pct_revenue,
+          # nominal GDP
+          gdp_growth_pct,
+          # credit rating
+          credit_rating
+        ) %>% 
+        # Round all numeric values except 'year'
+        mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
+        # Convert all variables to character
+        mutate(across(everything(), as.character)) %>%
+        # Pivot longer
+        pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
+        # Pivot wider
+        pivot_wider(names_from = year, values_from = values) %>% 
+        # Clean up indicators names
+        mutate(
+          indicators = str_replace(indicators, "_", " "),
+          indicators = str_replace(indicators, "pct", "% of"),
+          indicators = str_to_title(str_replace_all(indicators, "_", " ")),
+          indicators = str_replace(indicators, "Gdp", "GDP"),
+          indicators = str_replace(indicators, "Of", "of"),
+          indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
+          indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
+          indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
+        )
+      
+      # Add the first sheet with baseline data (non-reactive)
+      addWorksheet(wb, "Baseline Scenario")
+      writeData(wb, "Baseline Scenario", baseline_data, startRow = 1, startCol = 1)
+      
+      # Style the headers
+      headerStyle <- createStyle(
+        fontSize = 12, fontColour = "#FFFFFF", halign = "center",
+        fgFill = "#4F81BD", border = "TopBottom", borderColour = "#4F81BD"
+      )
+      addStyle(wb, "Baseline Scenario", headerStyle, rows = 1, cols = 1:ncol(server_data_baseline))
+      
+      # Auto-size columns
+      setColWidths(wb, "Baseline Scenario", cols = 1:ncol(server_data_baseline), widths = "auto")
+      
+      # Add the second sheet with alternative scenario data
+      alternative_data <- server_data_tab() %>% 
+        select(
+          # year
+          year, 
+          # gross debt 
+          gross_debt_pct_gdp,
+          # primary balance
+          primary_net_lending_pct_gdp,
+          # interest payment
+          interest_payments_pct_revenue,
+          # nominal GDP
+          gdp_growth_pct,
+          # credit rating
+          credit_rating
+        ) %>% 
+        # Round all numeric values except 'year'
+        mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
+        # Convert all variables to character
+        mutate(across(everything(), as.character)) %>%
+        # Pivot longer
+        pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
+        # Pivot wider
+        pivot_wider(names_from = year, values_from = values) %>% 
+        # Clean up indicators names
+        mutate(
+          indicators = str_replace(indicators, "_", " "),
+          indicators = str_replace(indicators, "pct", "% of"),
+          indicators = str_to_title(str_replace_all(indicators, "_", " ")),
+          indicators = str_replace(indicators, "Gdp", "GDP"),
+          indicators = str_replace(indicators, "Of", "of"),
+          indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
+          indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
+          indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
+        )
+      
+      addWorksheet(wb, "Alternative Scenario")
+      writeData(wb, "Alternative Scenario", alternative_data, startRow = 1, startCol = 1)
+      
+      # Apply the same styling to the second sheet
+      addStyle(wb, "Alternative Scenario", headerStyle, rows = 1, cols = 1:ncol(alternative_data))
+      setColWidths(wb, "Alternative Scenario", cols = 1:ncol(alternative_data), widths = "auto")
+      
+      # Save the workbook to the file
+      saveWorkbook(wb, file, overwrite = TRUE)
+    }
+  )
+  # -------------------------------------------------------------------------
+  # visualizations - home tab
   # -------------------------------------------------------------------------
   # Credit rating 
   output$home_credit_rating <- renderPlot({
