@@ -390,271 +390,273 @@ server <- function(input, output, session) {
   # visualizations - home tab
   # -------------------------------------------------------------------------
   # Credit rating 
-  output$home_credit_rating <- renderPlot({
+  output$home_credit_rating <- echarts4r::renderEcharts4r({
+    # Generate labels for all possible ratings
+    rating_labels <- fima_cra_y_axis(y_values = 1:22)
+    
+    # Convert the mapping to JSON for all ratings
+    rating_json <- jsonlite::toJSON(setNames(rating_labels, 1:22))
+    
     server_data_alternative_viz() %>% 
       select(c(year, credit_rating_number, group)) %>% 
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = credit_rating_number, color = group, linetype = group, group = group)) +
-      geom_line(linewidth = 1.25) +
-      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
-      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
-      labs(
-        title = "Credit Rating",
-        # subtitle = "Comparison over time",
-        x = "",
-        y = "")  +
-      scale_x_continuous(
-        breaks = scales::pretty_breaks(n = 10),
-        expand = c(0,0)
-      ) +
-      scale_y_continuous(
-        breaks = 1:22,
-        labels = fima_cra_y_axis(y_values = 1:22)
-      ) +
-      theme_minimal() +
-      theme(
-        # Legend settings for one line
-        legend.position = "bottom",
-        legend.direction = "horizontal",
-        legend.box = "horizontal",
-        legend.box.just = "center",
-        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
-        legend.spacing.x = unit(0.2, "cm"),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        # Make the legend key wider to avoid wrapping
-        legend.key.width = unit(1, "cm"),
-        # Other theme elements
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(face = "bold", size = 14),
-        # Increase axis text size
-        axis.text.x = element_text(face = "bold", size = 12),
-        axis.text.y = element_text(face = "bold", size = 12),
-        axis.title = element_text(face = "bold", size = 12),
-        # Add solid line at the bottom
-        axis.line.x = element_line(color = "black", linewidth = 0.5),
-        # Remove default x-axis line to replace with our custom one
-        panel.border = element_blank(),
-        # Ensure ticks are visible
-        axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(0.25, "cm"),
-        panel.grid.major.x = element_blank()
-      )+
-      guides(color = guide_legend(nrow = 1)) +
-      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+      dplyr::group_by(group) %>%
+      echarts4r::e_charts(year) %>%
+      echarts4r::e_line(credit_rating_number) %>%
+      echarts4r::e_x_axis(
+        name = "",
+        type = "category"
+      ) %>%
+      echarts4r::e_y_axis(
+        scale = FALSE,
+        # Let's use JavaScript formatter for dynamic min/max
+        min = "dataMin",  # Use data minimum
+        max = "dataMax",  # Use data maximum
+        minInterval = 1,  # Ensure integer steps
+        axisLabel = list(
+          formatter = htmlwidgets::JS(paste0("
+        function(value) {
+          var labels = ", rating_json, ";
+          return labels[Math.round(value)] || value;
+        }
+      "))
+        )
+      ) %>%
+      echarts4r::e_legend(
+        bottom = "0%",
+        orient = "horizontal",
+        x = "center",
+        padding = c(5, 10, 5, 10)
+      ) %>%
+      echarts4r::e_tooltip(
+        trigger = "axis",
+        formatter = htmlwidgets::JS(paste0("
+        function(params) {
+          var year = params[0].axisValue;
+          var result = year;
+          var labels = ", rating_json, ";
+          
+          params.forEach(function(param) {
+            var numValue = Number(param.value[1]);
+            var formattedValue = labels[Math.round(numValue)] || numValue.toFixed(3);
+            result += '<br/>' + param.marker + param.seriesName + ': ' + formattedValue;
+          });
+          return result;
+        }
+      ")),
+        axisPointer = list(
+          type = "cross"
+        )
+      ) %>%
+      echarts4r::e_grid(
+        containLabel = TRUE,
+        top = "5%",  
+        bottom = "7%",
+        left = "5%",
+        right = "5%"
+      ) %>%
+      e_toolbox_feature(feature = c("saveAsImage"))
   })
   # General government gross debt (% GDP)
-  output$home_debt_ngdp <- renderPlot({
+  output$home_debt_ngdp <- echarts4r::renderEcharts4r({
     server_data_alternative_viz() %>% 
       select(c(year, gross_debt_pct_gdp, group)) %>% 
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = gross_debt_pct_gdp, color = group, linetype = group, group = group)) +
-      geom_line(linewidth = 1.25) +
-      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
-      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
-      labs(
-        title = "General government gross debt (% of Nominal GDP)",
-        # subtitle = "Comparison over time",
-        x = "",
-        y = "")  +
-      scale_x_continuous(
-        breaks = scales::pretty_breaks(n = 10),
-        expand = c(0,0)
-      )+
-      theme_minimal() +
-      theme(
-        # Legend settings for one line
-        legend.position = "bottom",
-        legend.direction = "horizontal",
-        legend.box = "horizontal",
-        legend.box.just = "center",
-        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
-        legend.spacing.x = unit(0.2, "cm"),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        # Make the legend key wider to avoid wrapping
-        legend.key.width = unit(1, "cm"),
-        # Other theme elements
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(face = "bold", size = 14),
-        # Increase axis text size
-        axis.text.x = element_text(face = "bold", size = 12),
-        axis.text.y = element_text(face = "bold", size = 12),
-        axis.title = element_text(face = "bold", size = 12),
-        # Add solid line at the bottom
-        axis.line.x = element_line(color = "black", linewidth = 0.5),
-        # Remove default x-axis line to replace with our custom one
-        panel.border = element_blank(),
-        # Ensure ticks are visible
-        axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(0.25, "cm"),
-        panel.grid.major.x = element_blank()
-      )+
-      guides(color = guide_legend(nrow = 1)) +
-      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+      dplyr::group_by(group) %>%
+      echarts4r::e_charts(year) %>%
+      echarts4r::e_line(gross_debt_pct_gdp) %>%
+      echarts4r::e_x_axis(
+        name = "",
+        type = "category"
+      ) %>%
+      echarts4r::e_y_axis(
+        scale = TRUE
+      ) %>%
+      echarts4r::e_legend(
+        bottom = "0%",
+        orient = "horizontal",
+        x = "center",
+        padding = c(5, 10, 5, 10)
+      ) %>%
+      echarts4r::e_tooltip(
+        trigger = "axis",
+        formatter = htmlwidgets::JS("
+        function(params) {
+          var year = params[0].axisValue;
+          var result = year;
+          params.forEach(function(param) {
+            var value = Number(param.value[1]).toFixed(3);
+            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
+          });
+          return result;
+        }
+      "),
+        axisPointer = list(
+          type = "cross"
+        )
+      ) %>%
+      echarts4r::e_grid(
+        containLabel = TRUE,
+        top = "5%",  
+        bottom = "7%",
+        left = "5%",
+        right = "5%"
+      ) %>%
+      e_toolbox_feature(feature = c("saveAsImage"))
   })
   
   # Nominal GDP growth (%)
-  output$home_ngdp_growth <- renderPlot({
+  output$home_ngdp_growth <- echarts4r::renderEcharts4r({
     server_data_alternative_viz() %>% 
       select(c(year, gdp_growth_pct, group)) %>% 
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = gdp_growth_pct, color = group, linetype = group, group = group)) +
-      geom_line(linewidth = 1.25) +
-      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
-      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
-      labs(
-        title = "Nominal GDP growth (%)",
-        # subtitle = "Comparison over time",
-        x = "",
-        y = "")  +
-      scale_x_continuous(
-        breaks = scales::pretty_breaks(n = 10),
-        expand = c(0,0)
-      )+
-      theme_minimal() +
-      theme(
-        # Legend settings for one line
-        legend.position = "bottom",
-        legend.direction = "horizontal",
-        legend.box = "horizontal",
-        legend.box.just = "center",
-        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
-        legend.spacing.x = unit(0.2, "cm"),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        # Make the legend key wider to avoid wrapping
-        legend.key.width = unit(1, "cm"),
-        # Other theme elements
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(face = "bold", size = 14),
-        # Increase axis text size
-        axis.text.x = element_text(face = "bold", size = 12),
-        axis.text.y = element_text(face = "bold", size = 12),
-        axis.title = element_text(face = "bold", size = 12),
-        # Add solid line at the bottom
-        axis.line.x = element_line(color = "black", linewidth = 0.5),
-        # Remove default x-axis line to replace with our custom one
-        panel.border = element_blank(),
-        # Ensure ticks are visible
-        axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(0.25, "cm"),
-        panel.grid.major.x = element_blank()
-      )+
-      guides(color = guide_legend(nrow = 1)) +
-      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+      dplyr::group_by(group) %>%
+      echarts4r::e_charts(year) %>%
+      echarts4r::e_line(gdp_growth_pct) %>%
+      echarts4r::e_x_axis(
+        name = "",
+        type = "category"
+      ) %>%
+      echarts4r::e_y_axis(
+        scale = TRUE
+      ) %>%
+      echarts4r::e_legend(
+        bottom = "0%",
+        orient = "horizontal",
+        x = "center",
+        padding = c(5, 10, 5, 10)
+      ) %>%
+      echarts4r::e_tooltip(
+        trigger = "axis",
+        formatter = htmlwidgets::JS("
+        function(params) {
+          var year = params[0].axisValue;
+          var result = year;
+          params.forEach(function(param) {
+            var value = Number(param.value[1]).toFixed(3);
+            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
+          });
+          return result;
+        }
+      "),
+        axisPointer = list(
+          type = "cross"
+        )
+      ) %>%
+      echarts4r::e_grid(
+        containLabel = TRUE,
+        top = "5%",  
+        bottom = "7%",
+        left = "5%",
+        right = "5%"
+      ) %>%
+      e_toolbox_feature(feature = c("saveAsImage"))
   })
   
   # General government interest payments (% Revenue)
-  output$home_ir_revenue <- renderPlot({
+  output$home_ir_revenue <- echarts4r::renderEcharts4r({
     server_data_alternative_viz() %>% 
       select(c(year, interest_payments_pct_revenue, group)) %>% 
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = interest_payments_pct_revenue, color = group, linetype = group, group = group)) +
-      geom_line(linewidth = 1.25) +
-      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
-      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
-      labs(
-        title = "General government interest payments (% Revenue)",
-        # subtitle = "Comparison over time",
-        x = "",
-        y = "")  +
-      scale_x_continuous(
-        breaks = scales::pretty_breaks(n = 10),
-        expand = c(0,0)
-      )+
-      theme_minimal() +
-      theme(
-        # Legend settings for one line
-        legend.position = "bottom",
-        legend.direction = "horizontal",
-        legend.box = "horizontal",
-        legend.box.just = "center",
-        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
-        legend.spacing.x = unit(0.2, "cm"),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        # Make the legend key wider to avoid wrapping
-        legend.key.width = unit(1, "cm"),
-        # Other theme elements
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(face = "bold", size = 14),
-        # Increase axis text size
-        axis.text.x = element_text(face = "bold", size = 12),
-        axis.text.y = element_text(face = "bold", size = 12),
-        axis.title = element_text(face = "bold", size = 12),
-        # Add solid line at the bottom
-        axis.line.x = element_line(color = "black", linewidth = 0.5),
-        # Remove default x-axis line to replace with our custom one
-        panel.border = element_blank(),
-        # Ensure ticks are visible
-        axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(0.25, "cm"),
-        panel.grid.major.x = element_blank()
-      )+
-      guides(color = guide_legend(nrow = 1)) +
-      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+      dplyr::group_by(group) %>%
+      echarts4r::e_charts(year) %>%
+      echarts4r::e_line(interest_payments_pct_revenue) %>%
+      echarts4r::e_x_axis(
+        name = "",
+        type = "category"
+      ) %>%
+      echarts4r::e_y_axis(
+        scale = TRUE
+      ) %>%
+      echarts4r::e_legend(
+        bottom = "0%",
+        orient = "horizontal",
+        x = "center",
+        padding = c(5, 10, 5, 10)
+      ) %>%
+      echarts4r::e_tooltip(
+        trigger = "axis",
+        formatter = htmlwidgets::JS("
+        function(params) {
+          var year = params[0].axisValue;
+          var result = year;
+          params.forEach(function(param) {
+            var value = Number(param.value[1]).toFixed(3);
+            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
+          });
+          return result;
+        }
+      "),
+        axisPointer = list(
+          type = "cross"
+        )
+      ) %>%
+      echarts4r::e_grid(
+        containLabel = TRUE,
+        top = "5%",  
+        bottom = "7%",
+        left = "5%",
+        right = "5%"
+      ) %>%
+      e_toolbox_feature(feature = c("saveAsImage"))
   })
   
   # General government primary balance (% of Nominal GDP)
-  output$home_pb <- renderPlot({
+  output$home_pb <- echarts4r::renderEcharts4r({
     server_data_alternative_viz() %>% 
       select(c(year, primary_net_lending_pct_gdp, group)) %>% 
       mutate(
         group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
       ) %>% 
-      ggplot(aes(x = year, y = primary_net_lending_pct_gdp, color = group, linetype = group, group = group)) +
-      geom_line(linewidth = 1.25) +
-      scale_color_manual(values = c("Baseline Scenario" = "blue", "Alternative Scenario" = "red")) +
-      scale_linetype_manual(values = c("Baseline Scenario" = "solid", "Alternative Scenario" = "dashed")) +
-      labs(
-        title = "General government primary balance (% of Nominal GDP)",
-        # subtitle = "Comparison over time",
-        x = "",
-        y = "")  +
-      scale_x_continuous(
-        breaks = scales::pretty_breaks(n = 10),
-        expand = c(0,0)
-      )+
-      theme_minimal() +
-      theme(
-        # Legend settings for one line
-        legend.position = "bottom",
-        legend.direction = "horizontal",
-        legend.box = "horizontal",
-        legend.box.just = "center",
-        legend.margin = margin(t = -15, r = 0, b = 0, l = 0),
-        legend.spacing.x = unit(0.2, "cm"),
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        # Make the legend key wider to avoid wrapping
-        legend.key.width = unit(1, "cm"),
-        # Other theme elements
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(face = "bold", size = 14),
-        # Increase axis text size
-        axis.text.x = element_text(face = "bold", size = 12),
-        axis.text.y = element_text(face = "bold", size = 12),
-        axis.title = element_text(face = "bold", size = 12),
-        # Add solid line at the bottom
-        axis.line.x = element_line(color = "black", linewidth = 0.5),
-        # Remove default x-axis line to replace with our custom one
-        panel.border = element_blank(),
-        # Ensure ticks are visible
-        axis.ticks.x = element_line(color = "black"),
-        axis.ticks.length.x = unit(0.25, "cm"),
-        panel.grid.major.x = element_blank()
-      )+
-      guides(color = guide_legend(nrow = 1)) +
-      geom_rug(sides = "b", aes(color = NULL), alpha = 0.5)
+      dplyr::group_by(group) %>%
+      echarts4r::e_charts(year) %>%
+      echarts4r::e_line(primary_net_lending_pct_gdp) %>%
+      echarts4r::e_x_axis(
+        name = "",
+        type = "category"
+      ) %>%
+      echarts4r::e_y_axis(
+        scale = TRUE
+      ) %>%
+      echarts4r::e_legend(
+        bottom = "0%",
+        orient = "horizontal",
+        x = "center",
+        padding = c(5, 10, 5, 10)
+      ) %>%
+      echarts4r::e_tooltip(
+        trigger = "axis",
+        formatter = htmlwidgets::JS("
+        function(params) {
+          var year = params[0].axisValue;
+          var result = year;
+          params.forEach(function(param) {
+            var value = Number(param.value[1]).toFixed(3);
+            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
+          });
+          return result;
+        }
+      "),
+        axisPointer = list(
+          type = "cross"
+        )
+      ) %>%
+      echarts4r::e_grid(
+        containLabel = TRUE,
+        top = "5%",  
+        bottom = "7%",
+        left = "5%",
+        right = "5%"
+      ) %>%
+      e_toolbox_feature(feature = c("saveAsImage"))
   })
   
 }

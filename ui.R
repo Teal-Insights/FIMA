@@ -139,7 +139,7 @@ ui <- bslib::page_navbar(
           h5("Step 1 : Select Country"),
           p(
             "Under select country dropdown, select country of your choice 
-          (preferabbly Ruritania), it will display vulnerabilities it is exposed
+          (preferably Ruritania), it will display vulnerabilities it is exposed
           to and the checkboxes of Key Performance Indicators (KPIs)."
           ),
           
@@ -300,18 +300,18 @@ ui <- bslib::page_navbar(
               # class
               class = "bg-primary text-white",
             ),
-            plotOutput(outputId = "home_credit_rating")
+            echarts4r::echarts4rOutput(outputId = "home_credit_rating")
           ),
-          # Debt-NGDP ratio, %
+          # General government gross debt (% NGDP)
           card(
             full_screen = TRUE,
             card_header(
               # title
-              "Debt-GDP ratio, %",
+              "General government gross debt (% NGDP)",
               # class
               class = "bg-primary text-white",
             ),
-            plotOutput(outputId = "home_debt_ngdp")
+            echarts4r::echarts4rOutput(outputId = "home_debt_ngdp")
           ),
           # Nominal GDP growth (%)
           card(
@@ -322,7 +322,7 @@ ui <- bslib::page_navbar(
               # class
               class = "bg-primary text-white",
             ),
-            plotOutput(outputId = "home_ngdp_growth")
+            echarts4r::echarts4rOutput(outputId = "home_ngdp_growth")
           )
         )
       ),
@@ -332,16 +332,16 @@ ui <- bslib::page_navbar(
         layout_column_wrap(
           width = 1 / 2,
           heights_equal = "row",
-          # Interest % Revenue
+          # General government interest payments (% Revenue)
           card(
             full_screen = TRUE,
             card_header(
               # title
-              "Interest % Revenue",
+              "General government interest payments (% Revenue)",
               # class
               class = "bg-primary text-white",
             ),
-            plotOutput(outputId = "home_ir_revenue")
+            echarts4r::echarts4rOutput(outputId = "home_ir_revenue")
           ),
           # Primary Balance, % of Nominal GDP
           card(
@@ -352,7 +352,7 @@ ui <- bslib::page_navbar(
               # class
               class = "bg-primary text-white",
             ),
-            plotOutput(outputId = "home_pb")
+            echarts4r::echarts4rOutput(outputId = "home_pb")
           )
         )
       )
