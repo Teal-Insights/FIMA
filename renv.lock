@@ -905,6 +905,34 @@
       "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
       "Repository": "CRAN"
     },
+    "corrplot": {
+      "Package": "corrplot",
+      "Version": "0.95",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Visualization of a Correlation Matrix",
+      "Date": "2024-10-14",
+      "Authors@R": "c( person('Taiyun', 'Wei', email = 'weitaiyun@gmail.com', role = c('cre', 'aut')), person('Viliam', 'Simko', email = 'viliam.simko@gmail.com', role = 'aut'), person('Michael', 'Levy', email = 'michael.levy@healthcatalyst.com', role = 'ctb'), person('Yihui', 'Xie', email = 'xie@yihui.name', role = 'ctb'), person('Yan', 'Jin', email = 'jyfeather@gmail.com', role = 'ctb'), person('Jeff', 'Zemla', email = 'zemla@wisc.edu', role = 'ctb'), person('Moritz', 'Freidank', email = 'freidankm@googlemail.com', role = 'ctb'), person('Jun', 'Cai', email = 'cai-j12@mails.tsinghua.edu.cn', role = 'ctb'), person('Tomas', 'Protivinsky', email = 'tomas.protivinsky@gmail.com', role = 'ctb') )",
+      "Maintainer": "Taiyun Wei <weitaiyun@gmail.com>",
+      "Suggests": [
+        "seriation",
+        "knitr",
+        "RColorBrewer",
+        "rmarkdown",
+        "magrittr",
+        "prettydoc",
+        "testthat"
+      ],
+      "Description": "Provides a visual exploratory tool on correlation matrix that supports automatic variable reordering to help detect hidden patterns among variables.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/taiyun/corrplot",
+      "BugReports": "https://github.com/taiyun/corrplot/issues",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.2.1",
+      "NeedsCompilation": "no",
+      "Author": "Taiyun Wei [cre, aut], Viliam Simko [aut], Michael Levy [ctb], Yihui Xie [ctb], Yan Jin [ctb], Jeff Zemla [ctb], Moritz Freidank [ctb], Jun Cai [ctb], Tomas Protivinsky [ctb]",
+      "Repository": "CRAN"
+    },
     "countrycode": {
       "Package": "countrycode",
       "Version": "1.6.0",
@@ -1305,6 +1333,50 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [cre, aut], Maximilian Girlich [aut], Mark Fairbanks [aut], Ryan Dickerson [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
+    },
+    "echarts4r": {
+      "Package": "echarts4r",
+      "Version": "0.4.5",
+      "Source": "Repository",
+      "Title": "Create Interactive Graphs with 'Echarts JavaScript' Version 5",
+      "Date": "2023-06-08",
+      "Authors@R": "c( person(\"John\", \"Coene\", email = \"jcoenep@gmail.com\", role = c(\"aut\", \"cph\")), person(\"David\", \"Munoz Tord\", email = \"david.munoztord@mailbox.org\", role = c(\"cre\", \"ctb\"), comment = c(ORCID = \"0000-0001-7954-8295\")), person(given = \"Wei\", family = \"Su\", email = \"swsoyee@gmail.com\", role = \"ctb\"), person(family = \"Helgasoft\", email = \"contact@helgasoft.com\", role = \"ctb\"), person(\"Xianying\", \"Tan\", email = \"shrektan@126.com\", role = \"ctb\", comment = c(ORCID = \"0000-0002-6072-3521\")), person(\"Robin\", \"Cura\", email = \"robin.cura@gmail.com\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5926-1828\")), person(\"Mathida\", \"Chuk\", email = \"mathidachuk@gmail.com\", role = \"ctb\"), person(\"Robert\", \"Koetsier\", email = \"rk8roko@gmail.com \", role = \"ctb\", comment = c(ORCID = \"0000-0002-4477-5401\")), person(\"Jelle\", \"Geertsma\", email = \"rdatasculptor@gmail.com\", role = \"ctb\") )",
+      "Description": "Easily create interactive charts by leveraging the 'Echarts Javascript' library which includes 36 chart types, themes, 'Shiny' proxies and animations.",
+      "License": "Apache License (>= 2.0)",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "htmlwidgets",
+        "dplyr (>= 0.7.0)",
+        "purrr",
+        "countrycode",
+        "broom",
+        "shiny",
+        "scales",
+        "corrplot",
+        "htmltools",
+        "jsonlite",
+        "rstudioapi"
+      ],
+      "Suggests": [
+        "tidyr",
+        "testthat",
+        "knitr",
+        "rmarkdown",
+        "covr",
+        "data.tree",
+        "leaflet",
+        "tibble"
+      ],
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "RoxygenNote": "7.2.3",
+      "URL": "https://echarts4r.john-coene.com/, https://github.com/JohnCoene/echarts4r",
+      "BugReports": "https://github.com/JohnCoene/echarts4r/issues/",
+      "NeedsCompilation": "no",
+      "Author": "John Coene [aut, cph], David Munoz Tord [cre, ctb] (<https://orcid.org/0000-0001-7954-8295>), Wei Su [ctb], Helgasoft [ctb], Xianying Tan [ctb] (<https://orcid.org/0000-0002-6072-3521>), Robin Cura [ctb] (<https://orcid.org/0000-0001-5926-1828>), Mathida Chuk [ctb], Robert Koetsier [ctb] (<https://orcid.org/0000-0002-4477-5401>), Jelle Geertsma [ctb]",
+      "Maintainer": "David Munoz Tord <david.munoztord@mailbox.org>",
       "Repository": "CRAN"
     },
     "evaluate": {
