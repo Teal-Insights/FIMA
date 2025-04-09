@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
 # components
 source(file = "components/ui/ui_footer_component.R")
 source(file = "components/ui/ui_documentation_component.R")
+source(file = "components/ui/ui_analysis_value_boxes.R")
 
 
 # -------------------------------------------------------------------------
@@ -90,8 +91,12 @@ ui <- bslib::page_navbar(
     # Favicon
     tags$link(rel = "icon", type = "image/x-icon", href = "ssdh_icon.png"),
     
-    # CSS stylesheets
+    # tabs
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_home.css"),
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_analysis.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_data.css"),
+    
+    # CSS stylesheets
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/navbar.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/footer.css"),
     
@@ -125,39 +130,46 @@ ui <- bslib::page_navbar(
           fillable = TRUE,
           fill = TRUE,
           # About the app
-          h5("About the app"),
-          p(
-            "FIMA Explorer App helps to analysis the impact of interventions based on their
+          tags$div(
+            class = "guide-box p-2 mb-0 border rounded",
+            h5("About the app"),
+            p(
+              "Financial Materiality Assessment (FIMA) Explorer App helps to 
+            analysis the impact of interventions based on their
             Key Performance Indicators (KPIs) on key indicators such as:
             Credit Rating, Debt-GDP ratio, %, Nominal GDP growth (%),
             Interest Payments % Revenue and Primary Balance, % of Nominal GDP. 
             For instance, does a country benefit from improved Protection Gap / 
             Land use in terms of improved Credit Rating, lower Debt-GDP ratio, %,
             as well well increased Nominal GDP growth (%)."
+            )
           ),
           # step 1
-          h5("Step 1 : Select Country"),
-          p(
-            "Under select country dropdown, select country of your choice 
+         tags$div(
+           class = "guide-box p-2 mb-0 border rounded",
+           # step 1
+           h5("Step 1 : Select Country"),
+           p(
+             "Under select country dropdown, select country of your choice 
           (preferably Ruritania), it will display vulnerabilities it is exposed
-          to and the checkboxes of Key Performance Indicators (KPIs)."
-          ),
-          
-          # step 2
-          h5("Step 2 : Check KPI(s) of choice"),
-          p(
-            "Under KPI checkboxes, check KPI(s) of choice. This will enable
-            respective interventions to display thereafter."
-          ),
-          
-          # step 3
-          h5("Step 3 : Interact with Interventions"),
-          p(
-            "Once the interventions are displayed (by default they are all 
-            checked), one can first check the 'Analysis' tab then uncheck 
-            interventions (If not need into the result) and then check the 
-            'Analysis' tab to see if there is any deviation."
-          ),
+          to and a list of Key Performance Indicators (KPIs)."
+           ),
+           
+           # step 2
+           h5("Step 2 : Check KPI(s) of choice"),
+           p(
+             "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
+             This will enable respective interventions to display thereafter."
+           ),
+           
+           # step 3
+           h5("Step 3 : Interact with Interventions"),
+           p(
+             "Once the interventions are displayed, one can start checking the 
+              interventions and then check the charts in 'Analysis' tab to see 
+              if there is any deviation."
+           )
+         ),
         )
       ),
       # Risk Assessment
@@ -200,11 +212,29 @@ ui <- bslib::page_navbar(
               class = "guide-box p-2 mb-0 border rounded",
               tags$div(
                 tags$h5("Vulnerabilities"),
-                tags$ul(
-                  tags$li("Vulnerability 1"),
-                  tags$li("Vulnerability 2"),
-                  tags$li("Vulnerability 3"),
-                  tags$li("Vulnerability 4")
+                tags$div(
+                  class = "kpi-list",
+                  lapply(c(
+                    "Landsides",
+                    "Hurricanes",
+                    "Flooding",
+                    "Costal erosion",
+                    "Soil erosion",
+                    "Droughts"
+                  ), function(item) {
+                    tags$div(
+                      class = "kpi-item",
+                      tags$span(
+                        class = "bullet-point",
+                        HTML("&#8226;") # Bullet point character
+                      ),
+                      tags$span(
+                        class = "kpi-label",
+                        style = "margin-left: 8px;",
+                        item
+                      )
+                    )
+                  })
                 )
               )
             )
@@ -218,13 +248,28 @@ ui <- bslib::page_navbar(
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               h5("KPIs"),
-              checkboxGroupInput(
-                inputId = "kpi_selection",
-                label = NULL,
-                choices = c("Protection Gap" = "protection_gap", 
-                            "Land Use" = "land_use",
-                            "KPI 3" = "kpi_3"),
-                selected = NULL
+              tags$div(
+                class = "kpi-list",
+                lapply(c(
+                  "Protection Gap",
+                  "Land Use",
+                  "GHG Emissions",
+                  "Biodiversity",
+                  "Water Quality"
+                ), function(item) {
+                  tags$div(
+                    class = "kpi-item",
+                    tags$span(
+                      class = "bullet-point",
+                      HTML("&#8226;") # Bullet point character
+                    ),
+                    tags$span(
+                      class = "kpi-label",
+                      style = "margin-left: 8px;",
+                      item
+                    )
+                  )
+                })
               )
             )
           )
@@ -240,38 +285,58 @@ ui <- bslib::page_navbar(
           fill = TRUE,
           # Interventions selector
           conditionalPanel(
-            condition = "input.kpi_selection.includes('protection_gap')",
+            condition = "input.id_country == 'Ruritania'",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Protection Gap"),
               h6("(Interventions)"),
-              br(),
-              checkboxGroupInput(
-                inputId = "protection_gap_interventions",
-                label = NULL,
-                choices = setNames(
-                  intervention_data$protection_gap,
-                  sapply(intervention_data$protection_gap, function(x) intervention_display_names[[x]])
-                ),
-                selected = intervention_data$protection_gap
+              tags$div(
+                class = "interventions-list",
+                lapply(
+                  intervention_display_names[intervention_data$protection_gap] %>% 
+                    unlist(), 
+                  function(item) {
+                  tags$div(
+                    class = "interventions-item",
+                    tags$span(
+                      class = "bullet-point",
+                      HTML("&#8226;") # Bullet point character
+                    ),
+                    tags$span(
+                      class = "interventions-label",
+                      style = "margin-left: 8px;",
+                      item
+                    )
+                  )
+                })
               )
             )
           ),
           conditionalPanel(
-            condition = "input.kpi_selection.includes('land_use')",
+            condition = "input.id_country == 'Ruritania'",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Land Use"),
               h6("(Interventions)"),
-              br(),
-              checkboxGroupInput(
-                inputId = "land_use_interventions",
-                label = NULL,
-                choices = setNames(
-                  intervention_data$land_use,
-                  sapply(intervention_data$land_use, function(x) intervention_display_names[[x]])
-                ),
-                selected = intervention_data$land_use
+              tags$div(
+                class = "interventions-list",
+                lapply(
+                  intervention_display_names[intervention_data$land_use] %>% 
+                    unlist(), 
+                  function(item) {
+                    tags$div(
+                      class = "interventions-item",
+                      tags$span(
+                        class = "bullet-point",
+                        HTML("&#8226;") # Bullet point character
+                      ),
+                      tags$span(
+                        class = "interventions-label",
+                        style = "margin-left: 8px;",
+                        item
+                      )
+                    )
+                  })
               )
             )
           )
@@ -285,74 +350,146 @@ ui <- bslib::page_navbar(
   bslib::nav_panel(
     title = "Analysis",
     bslib::card(
-      bslib::layout_column_wrap(
-        width = NULL,
-        heights_equal = "row",
-        layout_column_wrap(
-          width = 1 / 3,
-          heights_equal = "row",
-          # credit rating
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "Credit rating",
-              # class
-              class = "bg-primary text-white",
-            ),
-            echarts4r::echarts4rOutput(outputId = "home_credit_rating")
+      bslib::layout_sidebar(
+        sidebar = bslib::sidebar(
+          bg = "#2c3e50",
+          # KPIs checkbox
+          conditionalPanel(
+            condition = "input.id_country == 'Ruritania'",
+            # KPIs section
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("KPIs"),
+              checkboxGroupInput(
+                inputId = "kpi_selection",
+                label = NULL,
+                choices = c(
+                  "Protection Gap" = "protection_gap",
+                  "Land Use" = "land_use",
+                  "GHG Emissions" = "ghg_emissions",
+                  "Biodiversity" = "biodiversity",
+                  "Water Quality" = "water_quality"
+                ),
+                selected = NULL
+              )
+            )
           ),
-          # General government gross debt (% NGDP)
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "General government gross debt (% NGDP)",
-              # class
-              class = "bg-primary text-white",
-            ),
-            echarts4r::echarts4rOutput(outputId = "home_debt_ngdp")
+          # protection gap interventions checkbox
+          conditionalPanel(
+            condition = "input.kpi_selection.includes('protection_gap')",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("Protection Gap"),
+              h6("(Interventions)"),
+              br(),
+              checkboxGroupInput(
+                inputId = "protection_gap_interventions",
+                label = NULL,
+                choices = setNames(
+                  intervention_data$protection_gap,
+                  sapply(intervention_data$protection_gap, function(x) intervention_display_names[[x]])
+                ),
+                selected = NULL
+              )
+            )
           ),
-          # Nominal GDP growth (%)
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "Nominal GDP growth (%)",
-              # class
-              class = "bg-primary text-white",
-            ),
-            echarts4r::echarts4rOutput(outputId = "home_ngdp_growth")
+          # land use intervetnions checkbox
+          conditionalPanel(
+            condition = "input.kpi_selection.includes('land_use')",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("Land Use"),
+              h6("(Interventions)"),
+              br(),
+              checkboxGroupInput(
+                inputId = "land_use_interventions",
+                label = NULL,
+                choices = setNames(
+                  intervention_data$land_use,
+                  sapply(
+                    intervention_data$land_use, 
+                    function(x) intervention_display_names[[x]])
+                ),
+                selected = NULL
+              )
+            )
           )
-        )
-      ),
-      bslib::layout_column_wrap(
-        width = NULL,
-        heights_equal = "row",
+        ),
+        # Value boxes
         layout_column_wrap(
-          width = 1 / 2,
+          width = 1 / 5,
+          !!!vbs
+        ),
+        # charts
+        bslib::layout_column_wrap(
+          width = NULL,
           heights_equal = "row",
-          # General government interest payments (% Revenue)
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "General government interest payments (% Revenue)",
-              # class
-              class = "bg-primary text-white",
+          layout_column_wrap(
+            width = 1 / 3,
+            heights_equal = "row",
+            # credit rating
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Credit rating",
+                # class
+                class = "bg-primary text-white",
+              ),
+              echarts4r::echarts4rOutput(outputId = "home_credit_rating")
             ),
-            echarts4r::echarts4rOutput(outputId = "home_ir_revenue")
-          ),
-          # Primary Balance, % of Nominal GDP
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "Primary Balance, % of Nominal GDP",
-              # class
-              class = "bg-primary text-white",
+            # General government gross debt (% NGDP)
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "General government gross debt (% NGDP)",
+                # class
+                class = "bg-primary text-white",
+              ),
+              echarts4r::echarts4rOutput(outputId = "home_debt_ngdp")
             ),
-            echarts4r::echarts4rOutput(outputId = "home_pb")
+            # Nominal GDP growth (%)
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Nominal GDP growth (%)",
+                # class
+                class = "bg-primary text-white",
+              ),
+              echarts4r::echarts4rOutput(outputId = "home_ngdp_growth")
+            )
+          )
+        ),
+        bslib::layout_column_wrap(
+          width = NULL,
+          heights_equal = "row",
+          layout_column_wrap(
+            width = 1 / 2,
+            heights_equal = "row",
+            # General government interest payments (% Revenue)
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "General government interest payments (% Revenue)",
+                # class
+                class = "bg-primary text-white",
+              ),
+              echarts4r::echarts4rOutput(outputId = "home_ir_revenue")
+            ),
+            # Primary Balance, % of Nominal GDP
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Primary Balance, % of Nominal GDP",
+                # class
+                class = "bg-primary text-white",
+              ),
+              echarts4r::echarts4rOutput(outputId = "home_pb")
+            )
           )
         )
       )

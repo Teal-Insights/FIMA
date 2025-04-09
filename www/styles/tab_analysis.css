@@ -1,0 +1,31 @@
+/* Remove all extra spacing */
+.custom-value-box .ReactTable {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+/* Tighten header and data cells */
+.custom-value-box .rt-th,
+.custom-value-box .rt-td {
+  padding: 2px 4px !important;  /* Very tight padding */
+  margin: 0 !important;
+  border-right: none !important;
+}
+
+/* Remove extra right padding from the last column */
+.custom-value-box .rt-th:last-child,
+.custom-value-box .rt-td:last-child {
+  padding-right: 2px !important;
+}
+
+/* No spacing between columns */
+.custom-value-box .rt-resizable-header-content {
+  padding: 0 !important;
+}
+
+/* Ensure rows take full width */
+.custom-value-box .rt-tr {
+  flex: 1 0 auto !important;
+  padding: 0 !important;
+}

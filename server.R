@@ -105,6 +105,360 @@ server <- function(input, output, session) {
   #   str(data)
   # })
   # -------------------------------------------------------------------------
+  # analysis tab - value boxes
+  # -------------------------------------------------------------------------
+  # Credit Rating
+  output$vb_cra <- reactable::renderReactable({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2025,2033)) %>% 
+      select(year, credit_rating, Scenario = group) %>% 
+      mutate(Scenario = str_remove_all(string = Scenario, pattern = " Scenario")) %>% 
+      pivot_wider(names_from = year, values_from = credit_rating)
+    # Check if there are multiple scenarios to compare
+    total_rows <- nrow(data) > 1
+    
+    # Default colors if condition not met
+    bgc_theme <- "#524f4e"
+    bgc_header <- "#3e3b3a"
+    
+    # Only try to determine color change if we have multiple scenarios
+    if (total_rows) {
+      # Find baseline and alternative rows
+      data_cra <- data %>% 
+        mutate(value = fima_credit_rating_to_number(rating = `2033`)) %>% 
+        select(Scenario,`2033` = "value") 
+      
+      baseline_row <- data_cra %>% filter(Scenario == "Baseline")
+      alternative_row <- data_cra %>% filter(Scenario == "Alternative")
+      
+      # Check if both scenarios exist before comparing
+      if (nrow(baseline_row) > 0 && nrow(alternative_row) > 0) {
+        # Compare 2033 values - if baseline is higher than alternative, use green
+        if (baseline_row$`2033` < alternative_row$`2033`) {
+          bgc_theme <- "green"
+          bgc_header <- "darkgreen"
+        }
+      }
+    }
+    
+    # Create and return the reactable
+    reactable::reactable(
+      data = data,
+      theme = reactable::reactableTheme(
+        backgroundColor = bgc_theme,
+        color = "white",
+        borderColor = "rgba(255, 255, 255, 0.3)",
+        headerStyle = list(
+          backgroundColor = bgc_header,
+          color = "white",
+          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+        ),
+        cellStyle = list(
+          padding = "2px 4px"  # Reduce cell padding to match
+        )
+      ),
+      compact = TRUE,
+      columns = list(
+        Scenario = colDef(
+          width = 110,  # Slightly reduced
+          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
+        ),
+        `2025` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        ),
+        `2033` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        )
+      ),
+      width = "100%",
+      bordered = FALSE
+    )
+  })
+  
+  # Debt to Nominal GDP ratio,%
+  output$vb_debt <- reactable::renderReactable({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2025, 2033)) %>% 
+      select(year, value = gross_debt_pct_gdp, Scenario = group) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = year, values_from = value)
+    
+    # Check if there are multiple scenarios to compare
+    total_rows <- nrow(data) > 1
+    
+    # Default colors if condition not met
+    bgc_theme <- "#524f4e"
+    bgc_header <- "#3e3b3a"
+    
+    # Only try to determine color change if we have multiple scenarios
+    if (total_rows) {
+      # Find baseline and alternative rows
+      baseline_row <- data %>% filter(Scenario == "Baseline")
+      alternative_row <- data %>% filter(Scenario == "Alternative")
+      
+      # Check if both scenarios exist before comparing
+      if (nrow(baseline_row) > 0 && nrow(alternative_row) > 0) {
+        # Compare 2033 values - if baseline is higher than alternative, use green
+        if (baseline_row$`2033` > alternative_row$`2033`) {
+          bgc_theme <- "green"
+          bgc_header <- "darkgreen"
+        }
+      }
+    }
+    
+    # Create and return the reactable
+    reactable::reactable(
+      data = data,
+      theme = reactable::reactableTheme(
+        backgroundColor = bgc_theme,
+        color = "white",
+        borderColor = "rgba(255, 255, 255, 0.3)",
+        headerStyle = list(
+          backgroundColor = bgc_header,
+          color = "white",
+          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+        ),
+        cellStyle = list(
+          padding = "2px 4px"  # Reduce cell padding to match
+        )
+      ),
+      compact = TRUE,
+      columns = list(
+        Scenario = colDef(
+          width = 110,  # Slightly reduced
+          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
+        ),
+        `2025` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        ),
+        `2033` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        )
+      ),
+      width = "100%",
+      bordered = FALSE
+    )
+  })
+  
+  # Nominal GDP growth (%)
+  output$vb_ngdp_growth <- reactable::renderReactable({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2025,2033)) %>% 
+      select(year, value = gdp_growth_pct, Scenario = group) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = year, values_from = value)
+    
+    # Check if there are multiple scenarios to compare
+    total_rows <- nrow(data) > 1
+    
+    # Default colors if condition not met
+    bgc_theme <- "#524f4e"
+    bgc_header <- "#3e3b3a"
+    
+    # Only try to determine color change if we have multiple scenarios
+    if (total_rows) {
+      # Find baseline and alternative rows
+      baseline_row <- data %>% filter(Scenario == "Baseline")
+      alternative_row <- data %>% filter(Scenario == "Alternative")
+      
+      # Check if both scenarios exist before comparing
+      if (nrow(baseline_row) > 0 && nrow(alternative_row) > 0) {
+        # Compare 2033 values - if baseline is higher than alternative, use green
+        if (baseline_row$`2033` < alternative_row$`2033`) {
+          bgc_theme <- "green"
+          bgc_header <- "darkgreen"
+        }
+      }
+    }
+    
+    # Create and return the reactable
+    reactable::reactable(
+      data = data,
+      theme = reactable::reactableTheme(
+        backgroundColor = bgc_theme,
+        color = "white",
+        borderColor = "rgba(255, 255, 255, 0.3)",
+        headerStyle = list(
+          backgroundColor = bgc_header,
+          color = "white",
+          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+        ),
+        cellStyle = list(
+          padding = "2px 4px"  # Reduce cell padding to match
+        )
+      ),
+      compact = TRUE,
+      columns = list(
+        Scenario = colDef(
+          width = 110,  # Slightly reduced
+          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
+        ),
+        `2025` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        ),
+        `2033` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        )
+      ),
+      width = "100%",
+      bordered = FALSE
+    )
+  })
+  # Interest Payments (% Revenue)
+  output$vb_interest <- reactable::renderReactable({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2025,2033)) %>% 
+      select(year, value = interest_payments_pct_revenue, Scenario = group) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(
+        names_from = year, 
+        values_from = value
+      )
+    
+    # Check if there are multiple scenarios to compare
+    total_rows <- nrow(data) > 1
+    
+    # Default colors if condition not met
+    bgc_theme <- "#524f4e"
+    bgc_header <- "#3e3b3a"
+    
+    # Only try to determine color change if we have multiple scenarios
+    if (total_rows) {
+      # Find baseline and alternative rows
+      baseline_row <- data %>% filter(Scenario == "Baseline")
+      alternative_row <- data %>% filter(Scenario == "Alternative")
+      
+      # Check if both scenarios exist before comparing
+      if (nrow(baseline_row) > 0 && nrow(alternative_row) > 0) {
+        # Compare 2033 values - if baseline is higher than alternative, use green
+        if (baseline_row$`2033` > alternative_row$`2033`) {
+          bgc_theme <- "green"
+          bgc_header <- "darkgreen"
+        }
+      }
+    }
+    
+    # Create and return the reactable
+    reactable::reactable(
+      data = data,
+      theme = reactable::reactableTheme(
+        backgroundColor = bgc_theme,
+        color = "white",
+        borderColor = "rgba(255, 255, 255, 0.3)",
+        headerStyle = list(
+          backgroundColor = bgc_header,
+          color = "white",
+          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+        ),
+        cellStyle = list(
+          padding = "2px 4px"  # Reduce cell padding to match
+        )
+      ),
+      compact = TRUE,
+      columns = list(
+        Scenario = colDef(
+          width = 110,  # Slightly reduced
+          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
+        ),
+        `2025` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        ),
+        `2033` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        )
+      ),
+      width = "100%",
+      bordered = FALSE
+    )
+  })
+  
+  # Primary Balance, % of Nominal GDP
+  output$vb_pb <- reactable::renderReactable({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2025,2033)) %>% 
+      select(year, value = primary_net_lending_pct_gdp, Scenario = group) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = year, values_from = value)
+    
+    # Check if there are multiple scenarios to compare
+    total_rows <- nrow(data) > 1
+    
+    # Default colors if condition not met
+    bgc_theme <- "#524f4e"
+    bgc_header <- "#3e3b3a"
+    
+    # Only try to determine color change if we have multiple scenarios
+    if (total_rows) {
+      # Find baseline and alternative rows
+      baseline_row <- data %>% filter(Scenario == "Baseline")
+      alternative_row <- data %>% filter(Scenario == "Alternative")
+      
+      # Check if both scenarios exist before comparing
+      if (nrow(baseline_row) > 0 && nrow(alternative_row) > 0) {
+        # Compare 2033 values - if baseline is higher than alternative, use green
+        if (baseline_row$`2033` < alternative_row$`2033`) {
+          bgc_theme <- "green"
+          bgc_header <- "darkgreen"
+        }
+      }
+    }
+    
+    # Create and return the reactable
+    reactable::reactable(
+      data = data,
+      theme = reactable::reactableTheme(
+        backgroundColor = bgc_theme,
+        color = "white",
+        borderColor = "rgba(255, 255, 255, 0.3)",
+        headerStyle = list(
+          backgroundColor = bgc_header,
+          color = "white",
+          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+        ),
+        cellStyle = list(
+          padding = "2px 4px"  # Reduce cell padding to match
+        )
+      ),
+      compact = TRUE,
+      columns = list(
+        Scenario = colDef(
+          width = 110,  # Slightly reduced
+          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
+        ),
+        `2025` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        ),
+        `2033` = colDef(
+          width = 75,  # Reduced width
+          align = "center"  # Center alignment helps with space perception
+        )
+      ),
+      width = "100%",
+      bordered = FALSE
+    )
+  })
+  # -------------------------------------------------------------------------
   # render data - data tab - Baseline Scenario
   # -------------------------------------------------------------------------
   output$data_table_baseline <- renderReactable({
