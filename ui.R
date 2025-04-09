@@ -72,20 +72,23 @@ ui <- bslib::page_navbar(
     class = "header-container",
     tags$img(
       src = "ssdh_logo.svg",
-      class = "header-logo",
-      style = "border-right: 2px solid white; padding-right: 10px; height: 60px"
+      class = "header-logo"
     ),
-    span(
-      class = "header-title",
-      "FIMA Explorer", 
-      HTML("&nbsp;&nbsp;&nbsp;&nbsp;"), # This adds four spaces
-      span(style = "color: red;", "(The app is under development)")
+    div(
+      class = "header-title-container",
+      style = "display: flex; flex-direction: column; justify-content: center;",
+      span(
+        class = "header-title",
+        style = "font-size: 1.5rem; font-weight: 600; color: white; line-height: 1.2;",
+        "FIMA Explorer"
+      ),
+      span(
+        class = "header-subtitle",
+        style = "font-size: 0.85rem; color: #ffcccc;",
+        "The app is under development"
+      )
     )
   ),
-  
-  # Empty header div (keeping the original structure)
-  header = div(),
-  
   # CSS imports
   tags$head(
     # Favicon
@@ -353,6 +356,13 @@ ui <- bslib::page_navbar(
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
+          tags$style(HTML("
+            .sidebar-content {
+              height: auto;
+              overflow-y: auto;
+              padding-right: 5px;
+            }
+          ")),
           # KPIs checkbox
           conditionalPanel(
             condition = "input.id_country == 'Ruritania'",
@@ -420,7 +430,7 @@ ui <- bslib::page_navbar(
           width = 1 / 5,
           !!!vbs
         ),
-        # charts
+        # row one of charts
         bslib::layout_column_wrap(
           width = NULL,
           heights_equal = "row",
@@ -430,38 +440,42 @@ ui <- bslib::page_navbar(
             # credit rating
             card(
               full_screen = TRUE,
+              height = "400px", 
               card_header(
                 # title
                 "Credit rating",
                 # class
                 class = "bg-primary text-white",
               ),
-              echarts4r::echarts4rOutput(outputId = "home_credit_rating")
+              echarts4r::echarts4rOutput(outputId = "home_credit_rating", height = "230px") 
             ),
             # General government gross debt (% NGDP)
             card(
               full_screen = TRUE,
+              height = "400px", 
               card_header(
                 # title
                 "General government gross debt (% NGDP)",
                 # class
                 class = "bg-primary text-white",
               ),
-              echarts4r::echarts4rOutput(outputId = "home_debt_ngdp")
+              echarts4r::echarts4rOutput(outputId = "home_debt_ngdp", height = "230px") 
             ),
             # Nominal GDP growth (%)
             card(
               full_screen = TRUE,
+              height = "400px", 
               card_header(
                 # title
                 "Nominal GDP growth (%)",
                 # class
                 class = "bg-primary text-white",
               ),
-              echarts4r::echarts4rOutput(outputId = "home_ngdp_growth")
+              echarts4r::echarts4rOutput(outputId = "home_ngdp_growth", height = "230px") 
             )
           )
         ),
+        # row two of charts
         bslib::layout_column_wrap(
           width = NULL,
           heights_equal = "row",
@@ -471,24 +485,26 @@ ui <- bslib::page_navbar(
             # General government interest payments (% Revenue)
             card(
               full_screen = TRUE,
+              height = "400px", # Add this line to set a fixed height
               card_header(
                 # title
                 "General government interest payments (% Revenue)",
                 # class
                 class = "bg-primary text-white",
               ),
-              echarts4r::echarts4rOutput(outputId = "home_ir_revenue")
+              echarts4r::echarts4rOutput(outputId = "home_ir_revenue", height = "230px") # Adjust chart height
             ),
             # Primary Balance, % of Nominal GDP
             card(
               full_screen = TRUE,
+              height = "400px", # Add this line to set a fixed height
               card_header(
                 # title
                 "Primary Balance, % of Nominal GDP",
                 # class
                 class = "bg-primary text-white",
               ),
-              echarts4r::echarts4rOutput(outputId = "home_pb")
+              echarts4r::echarts4rOutput(outputId = "home_pb", height = "230px") # Adjust chart height
             )
           )
         )
