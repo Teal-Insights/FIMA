@@ -466,16 +466,16 @@ server <- function(input, output, session) {
       select(
         # year
         year, 
-        # gross debt 
-        gross_debt_pct_gdp,
-        # primary balance
-        primary_net_lending_pct_gdp,
-        # interest payment
-        interest_payments_pct_revenue,
         # nominal GDP
-        gdp_growth_pct,
+        "Nominal GDP growth (yoy%)" = gdp_growth_pct,
+        # gross debt 
+        "General government gross debt (% NGDP)" = gross_debt_pct_gdp,
+        # primary balance
+        "General government primary balance (% NGDP)" = primary_net_lending_pct_gdp,
+        # interest payment
+        "General government interest payments (% Revenue)" = interest_payments_pct_revenue,
         # credit rating
-        credit_rating
+        "Credit Rating" = credit_rating
       ) %>% 
       # Round all numeric values except 'year'
       mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
@@ -484,28 +484,16 @@ server <- function(input, output, session) {
       # Pivot longer
       pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
       # Pivot wider
-      pivot_wider(names_from = year, values_from = values) %>% 
-      # Clean up indicators names
-      mutate(
-        indicators = str_replace(indicators, "_", " "),
-        indicators = str_replace(indicators, "pct", "% of"),
-        indicators = str_to_title(str_replace_all(indicators, "_", " ")),
-        indicators = str_replace(indicators, "Gdp", "GDP"),
-        indicators = str_replace(indicators, "Of", "of"),
-        indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
-        indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
-        indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
-      )
+      pivot_wider(names_from = year, values_from = values)
     
     # Return reactable with options
     reactable(
       processed_data,
       pagination = FALSE,  # Disable pagination
       showPagination = FALSE,  # Hide pagination controls
-      defaultPageSize = 500,  # Show a large number of rows by default
       showPageInfo = FALSE,  # Hide page info (e.g., "1-12 of 12 rows")
-      filterable = TRUE,
-      searchable = TRUE,
+      filterable = FALSE,
+      searchable = FALSE,
       striped = TRUE,
       highlight = TRUE,
       compact = TRUE,
@@ -514,7 +502,7 @@ server <- function(input, output, session) {
       columns = list(
         indicators = colDef(
           minWidth = 200,  # Set minimum width for indicators column
-          width = 350,     # Set default width for indicators column
+          width = 400,     # Set default width for indicators column
           sticky = "left"  # Freeze the indicators column on the left when scrolling
         )
       )
@@ -580,16 +568,16 @@ server <- function(input, output, session) {
       select(
         # year
         year, 
-        # gross debt 
-        gross_debt_pct_gdp,
-        # primary balance
-        primary_net_lending_pct_gdp,
-        # interest payment
-        interest_payments_pct_revenue,
         # nominal GDP
-        gdp_growth_pct,
+        "Nominal GDP growth (yoy%)" = gdp_growth_pct,
+        # gross debt 
+        "General government gross debt (% NGDP)" = gross_debt_pct_gdp,
+        # primary balance
+        "General government primary balance (% NGDP)" = primary_net_lending_pct_gdp,
+        # interest payment
+        "General government interest payments (% Revenue)" = interest_payments_pct_revenue,
         # credit rating
-        credit_rating
+        "Credit Rating" = credit_rating
       ) %>% 
       # Round all numeric values except 'year'
       mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
@@ -598,28 +586,16 @@ server <- function(input, output, session) {
       # Pivot longer
       pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
       # Pivot wider
-      pivot_wider(names_from = year, values_from = values) %>% 
-      # Clean up indicators names
-      mutate(
-        indicators = str_replace(indicators, "_", " "),
-        indicators = str_replace(indicators, "pct", "% of"),
-        indicators = str_to_title(str_replace_all(indicators, "_", " ")),
-        indicators = str_replace(indicators, "Gdp", "GDP"),
-        indicators = str_replace(indicators, "Of", "of"),
-        indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
-        indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
-        indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
-      )
+      pivot_wider(names_from = year, values_from = values)
     
     # Return reactable with options
     reactable(
       processed_data,
       pagination = FALSE,  # Disable pagination
       showPagination = FALSE,  # Hide pagination controls
-      defaultPageSize = 500,  # Show a large number of rows by default
       showPageInfo = FALSE,  # Hide page info (e.g., "1-12 of 12 rows")
-      filterable = TRUE,
-      searchable = TRUE,
+      filterable = FALSE,
+      searchable = FALSE,
       striped = TRUE,
       highlight = TRUE,
       compact = TRUE,
@@ -628,7 +604,7 @@ server <- function(input, output, session) {
       columns = list(
         indicators = colDef(
           minWidth = 200,  # Set minimum width for indicators column
-          width = 350,     # Set default width for indicators column
+          width = 400,     # Set default width for indicators column
           sticky = "left"  # Freeze the indicators column on the left when scrolling
         )
       )
@@ -639,7 +615,7 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   output$download_data <- downloadHandler(
     filename = function() {
-      paste("FIMA_Explorer_Data_Ruritania",".xlsx", sep = "")
+      paste("FIMA_Explorer_Data_",input$id_country,".xlsx", sep = "")
     },
     content = function(file) {
       # Create a new workbook
@@ -648,16 +624,16 @@ server <- function(input, output, session) {
         select(
           # year
           year, 
-          # gross debt 
-          gross_debt_pct_gdp,
-          # primary balance
-          primary_net_lending_pct_gdp,
-          # interest payment
-          interest_payments_pct_revenue,
           # nominal GDP
-          gdp_growth_pct,
+          "Nominal GDP growth (yoy%)" = gdp_growth_pct,
+          # gross debt 
+          "General government gross debt (% NGDP)" = gross_debt_pct_gdp,
+          # primary balance
+          "General government primary balance (% NGDP)" = primary_net_lending_pct_gdp,
+          # interest payment
+          "General government interest payments (% Revenue)" = interest_payments_pct_revenue,
           # credit rating
-          credit_rating
+          "Credit Rating" = credit_rating
         ) %>% 
         # Round all numeric values except 'year'
         mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
@@ -666,18 +642,7 @@ server <- function(input, output, session) {
         # Pivot longer
         pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
         # Pivot wider
-        pivot_wider(names_from = year, values_from = values) %>% 
-        # Clean up indicators names
-        mutate(
-          indicators = str_replace(indicators, "_", " "),
-          indicators = str_replace(indicators, "pct", "% of"),
-          indicators = str_to_title(str_replace_all(indicators, "_", " ")),
-          indicators = str_replace(indicators, "Gdp", "GDP"),
-          indicators = str_replace(indicators, "Of", "of"),
-          indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
-          indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
-          indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
-        )
+        pivot_wider(names_from = year, values_from = values)
       
       # Add the first sheet with baseline data (non-reactive)
       addWorksheet(wb, "Baseline Scenario")
@@ -698,16 +663,16 @@ server <- function(input, output, session) {
         select(
           # year
           year, 
-          # gross debt 
-          gross_debt_pct_gdp,
-          # primary balance
-          primary_net_lending_pct_gdp,
-          # interest payment
-          interest_payments_pct_revenue,
           # nominal GDP
-          gdp_growth_pct,
+          "Nominal GDP growth (yoy%)" = gdp_growth_pct,
+          # gross debt 
+          "General government gross debt (% NGDP)" = gross_debt_pct_gdp,
+          # primary balance
+          "General government primary balance (% NGDP)" = primary_net_lending_pct_gdp,
+          # interest payment
+          "General government interest payments (% Revenue)" = interest_payments_pct_revenue,
           # credit rating
-          credit_rating
+          "Credit Rating" = credit_rating
         ) %>% 
         # Round all numeric values except 'year'
         mutate(across(where(is.numeric) & !year, ~round(., digits = 1))) %>%
@@ -716,18 +681,7 @@ server <- function(input, output, session) {
         # Pivot longer
         pivot_longer(cols = -year,names_to = "indicators",values_to = "values") %>%
         # Pivot wider
-        pivot_wider(names_from = year, values_from = values) %>% 
-        # Clean up indicators names
-        mutate(
-          indicators = str_replace(indicators, "_", " "),
-          indicators = str_replace(indicators, "pct", "% of"),
-          indicators = str_to_title(str_replace_all(indicators, "_", " ")),
-          indicators = str_replace(indicators, "Gdp", "GDP"),
-          indicators = str_replace(indicators, "Of", "of"),
-          indicators = str_replace(indicators, "GDP Growth % of", "GDP Growth %"),
-          indicators = str_replace(indicators, "Dspb", "Debt-stabilising primary balance"),
-          indicators = str_replace(indicators, " Ngdp| GDP", " NGDP")
-        )
+        pivot_wider(names_from = year, values_from = values)
       
       addWorksheet(wb, "Alternative Scenario")
       writeData(wb, "Alternative Scenario", alternative_data, startRow = 1, startCol = 1)

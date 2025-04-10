@@ -18,3 +18,24 @@
 .rt-tr:hover {
   background-color: #f0f5ff !important;
 }
+
+/* data download button */
+.data-button {
+    text-align: center;
+    background-color: #2c946c;
+    border: 2px solid #0000;
+    border-radius: 6px;
+    align-self: flex-start;
+    min-width: 120px;
+    max-width: 300px;
+    padding: .6em 1em;
+    font-size: 1.1em;
+    font-weight: 400;
+    line-height: 1;
+    transition: background-color .25s;
+}
+
+.data-button:hover {
+    background-color: #005735;
+    border: 2px solid #0000;
+}

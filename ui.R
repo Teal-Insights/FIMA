@@ -122,7 +122,7 @@ ui <- bslib::page_navbar(
   bslib::nav_panel(
     title = "Home",
     bslib::layout_column_wrap(
-      width = 1 / 3,
+      width = 1 / 2,
       heights_equal = "row",
       # About the FIMA Explorer App
       bslib::card(
@@ -241,107 +241,6 @@ ui <- bslib::page_navbar(
                 )
               )
             )
-          ),
-          #---------------
-          # KPIs
-          #---------------
-          conditionalPanel(
-            condition = "input.id_country == 'Ruritania'",
-            # KPIs section
-            tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
-              h5("KPIs"),
-              tags$div(
-                class = "kpi-list",
-                lapply(c(
-                  "Protection Gap",
-                  "Land Use",
-                  "GHG Emissions",
-                  "Biodiversity",
-                  "Water Quality"
-                ), function(item) {
-                  tags$div(
-                    class = "kpi-item",
-                    tags$span(
-                      class = "bullet-point",
-                      HTML("&#8226;") # Bullet point character
-                    ),
-                    tags$span(
-                      class = "kpi-label",
-                      style = "margin-left: 8px;",
-                      item
-                    )
-                  )
-                })
-              )
-            )
-          )
-        )
-      ),
-      # Interventions
-      bslib::card(
-        full_screen = TRUE,
-        height = 400,
-        bslib::card_header("Interventions"),
-        bslib::card_body(
-          fillable = TRUE,
-          fill = TRUE,
-          # Interventions selector
-          conditionalPanel(
-            condition = "input.id_country == 'Ruritania'",
-            tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
-              h5("Protection Gap"),
-              h6("(Interventions)"),
-              tags$div(
-                class = "interventions-list",
-                lapply(
-                  intervention_display_names[intervention_data$protection_gap] %>% 
-                    unlist(), 
-                  function(item) {
-                  tags$div(
-                    class = "interventions-item",
-                    tags$span(
-                      class = "bullet-point",
-                      HTML("&#8226;") # Bullet point character
-                    ),
-                    tags$span(
-                      class = "interventions-label",
-                      style = "margin-left: 8px;",
-                      item
-                    )
-                  )
-                })
-              )
-            )
-          ),
-          conditionalPanel(
-            condition = "input.id_country == 'Ruritania'",
-            tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
-              h5("Land Use"),
-              h6("(Interventions)"),
-              tags$div(
-                class = "interventions-list",
-                lapply(
-                  intervention_display_names[intervention_data$land_use] %>% 
-                    unlist(), 
-                  function(item) {
-                    tags$div(
-                      class = "interventions-item",
-                      tags$span(
-                        class = "bullet-point",
-                        HTML("&#8226;") # Bullet point character
-                      ),
-                      tags$span(
-                        class = "interventions-label",
-                        style = "margin-left: 8px;",
-                        item
-                      )
-                    )
-                  })
-              )
-            )
           )
         )
       )
@@ -425,86 +324,93 @@ ui <- bslib::page_navbar(
             )
           )
         ),
-        # Value boxes
-        layout_column_wrap(
-          width = 1 / 5,
-          !!!vbs
-        ),
-        # row one of charts
-        bslib::layout_column_wrap(
-          width = NULL,
-          heights_equal = "row",
+        # -------------------------------------------------------------------------
+        # main content in analysis tab
+        # -------------------------------------------------------------------------
+        conditionalPanel(
+          condition = "input.id_country !== null &&  input.id_country !== ''",
+          # main output
+          # Value boxes at the top
           layout_column_wrap(
-            width = 1 / 3,
+            width = 1 / 5,
+            !!!vbs
+          ),
+          # row one of charts
+          bslib::layout_column_wrap(
+            width = NULL,
             heights_equal = "row",
-            # credit rating
-            card(
-              full_screen = TRUE,
-              height = "400px", 
-              card_header(
-                # title
-                "Credit rating",
-                # class
-                class = "bg-primary text-white",
+            layout_column_wrap(
+              width = 1 / 3,
+              heights_equal = "row",
+              # credit rating
+              card(
+                full_screen = TRUE,
+                height = "400px", 
+                card_header(
+                  # title
+                  "Credit rating",
+                  # class
+                  class = "bg-primary text-white",
+                ),
+                echarts4r::echarts4rOutput(outputId = "home_credit_rating", height = "230px") 
               ),
-              echarts4r::echarts4rOutput(outputId = "home_credit_rating", height = "230px") 
-            ),
-            # General government gross debt (% NGDP)
-            card(
-              full_screen = TRUE,
-              height = "400px", 
-              card_header(
-                # title
-                "General government gross debt (% NGDP)",
-                # class
-                class = "bg-primary text-white",
+              # General government gross debt (% NGDP)
+              card(
+                full_screen = TRUE,
+                height = "400px", 
+                card_header(
+                  # title
+                  "General government gross debt (% NGDP)",
+                  # class
+                  class = "bg-primary text-white",
+                ),
+                echarts4r::echarts4rOutput(outputId = "home_debt_ngdp", height = "230px") 
               ),
-              echarts4r::echarts4rOutput(outputId = "home_debt_ngdp", height = "230px") 
-            ),
-            # Nominal GDP growth (%)
-            card(
-              full_screen = TRUE,
-              height = "400px", 
-              card_header(
-                # title
-                "Nominal GDP growth (%)",
-                # class
-                class = "bg-primary text-white",
-              ),
-              echarts4r::echarts4rOutput(outputId = "home_ngdp_growth", height = "230px") 
+              # Nominal GDP growth (%)
+              card(
+                full_screen = TRUE,
+                height = "400px", 
+                card_header(
+                  # title
+                  "Nominal GDP growth (%)",
+                  # class
+                  class = "bg-primary text-white",
+                ),
+                echarts4r::echarts4rOutput(outputId = "home_ngdp_growth", height = "230px") 
+              )
             )
-          )
-        ),
-        # row two of charts
-        bslib::layout_column_wrap(
-          width = NULL,
-          heights_equal = "row",
-          layout_column_wrap(
-            width = 1 / 2,
+          ),
+          # row two of charts
+          bslib::layout_column_wrap(
+            width = NULL,
             heights_equal = "row",
-            # General government interest payments (% Revenue)
-            card(
-              full_screen = TRUE,
-              height = "400px", # Add this line to set a fixed height
-              card_header(
-                # title
-                "General government interest payments (% Revenue)",
-                # class
-                class = "bg-primary text-white",
+            layout_column_wrap(
+              width = 1 / 2,
+              heights_equal = "row",
+              # General government interest payments (% Revenue)
+              card(
+                full_screen = TRUE,
+                height = "400px", # Add this line to set a fixed height
+                card_header(
+                  # title
+                  "General government interest payments (% Revenue)",
+                  # class
+                  class = "bg-primary text-white",
+                ),
+                echarts4r::echarts4rOutput(outputId = "home_ir_revenue", height = "230px") # Adjust chart height
               ),
-              echarts4r::echarts4rOutput(outputId = "home_ir_revenue", height = "230px") # Adjust chart height
-            ),
-            # Primary Balance, % of Nominal GDP
-            card(
-              full_screen = TRUE,
-              height = "400px", # Add this line to set a fixed height
-              card_header(
-                # title
-                "Primary Balance, % of Nominal GDP",
-                # class
-                class = "bg-primary text-white",
-              ),
-              echarts4r::echarts4rOutput(outputId = "home_pb", height = "230px") # Adjust chart height
+              # Primary Balance, % of Nominal GDP
+              card(
+                full_screen = TRUE,
+                height = "400px", # Add this line to set a fixed height
+                card_header(
+                  # title
+                  "Primary Balance, % of Nominal GDP",
+                  # class
+                  class = "bg-primary text-white",
+                ),
+                echarts4r::echarts4rOutput(outputId = "home_pb", height = "230px") # Adjust chart height
+              )
             )
           )
         )
@@ -520,49 +426,94 @@ ui <- bslib::page_navbar(
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
-          tags$div(
-            class = "guide-box p-2 mb-0 border rounded",
-            tags$p(h5(icon("info-circle"), "Overview:"), class = "fw-bold"),
-            tags$p(
-              "In Alternative Scenario, the projections start from 2024. 
+          # overview note
+          conditionalPanel(
+            condition = "input.id_country !== null && 
+               input.id_country !== '' && 
+               input.kpi_selection.length > 0 && 
+               (input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use')) &&
+               (input.protection_gap_interventions.length > 0 || 
+                input.land_use_interventions.length > 0)",
+            # note
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              tags$p(h5(icon("info-circle"), "Overview:"), class = "fw-bold"),
+              tags$p(
+                "In Alternative Scenario, the projections start from 2024. 
               The values before 2024 in Alternative Scenarios are baseline values 
               hence similar to the Baseline Scenario values."
+              )
             )
           ),
           # download data
-          tags$div(
-            class = "guide-box p-2 mb-0 border rounded",
-            downloadButton("download_data", "Download Data")
+          conditionalPanel(
+            condition = "input.id_country !== null && 
+               input.id_country !== '' && 
+               input.kpi_selection.length > 0 && 
+               (input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use')) &&
+               (input.protection_gap_interventions.length > 0 || 
+                input.land_use_interventions.length > 0)",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              downloadButton(
+                "download_data", 
+                "Download Data",
+                class = "data-button",
+                icon = icon("download")
+              )
+            )
           )
         ),
+
+        # -------------------------------------------------------------------------
+        # main content in data tab
+        # -------------------------------------------------------------------------
+        # Baseline Scenario data
         layout_column_wrap(
           width = 1,
           heights_equal = "row",
           # Baseline Scenario data
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "Baseline Scenario data",
-              # class
-              class = "bg-primary text-white",
-            ),
-            bslib::card_body(
-              reactable::reactableOutput("data_table_baseline")
+          conditionalPanel(
+            condition = "input.id_country !== null &&  input.id_country !== ''",
+            # table output
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Baseline Scenario data",
+                # class
+                class = "bg-primary text-white",
+              ),
+              bslib::card_body(
+                reactable::reactableOutput("data_table_baseline")
+              )
             )
           ),
           # Alternative Scenario data
-          card(
-            full_screen = TRUE,
-            card_header(
-              # title
-              "Alternative Scenario data",
-              # class
-              class = "bg-primary text-white",
-            ),
-            bslib::card_body(
-              reactable::reactableOutput("data_table_alternative")
-            )
+          conditionalPanel(
+            condition = "input.id_country !== null && 
+               input.id_country !== '' && 
+               input.kpi_selection.length > 0 && 
+               (input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use')) &&
+               (input.protection_gap_interventions.length > 0 || 
+                input.land_use_interventions.length > 0)",
+            
+           # table output
+           card(
+             full_screen = TRUE,
+             card_header(
+               # title
+               "Alternative Scenario data",
+               # class
+               class = "bg-primary text-white",
+             ),
+             bslib::card_body(
+               reactable::reactableOutput("data_table_alternative")
+             )
+           )
           )
         )
       )
