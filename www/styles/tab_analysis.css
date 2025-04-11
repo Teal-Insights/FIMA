@@ -29,3 +29,10 @@
   flex: 1 0 auto !important;
   padding: 0 !important;
 }
+
+/* sidebar */
+#analysis_sidebar {
+  height: 1000px;
+  overflow-y: auto;
+  padding-right: 3px;
+}

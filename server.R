@@ -13,6 +13,8 @@ options(scipen = 999)
 source(file = "R/server/fima_baseline_scenario.R")
 source(file = "R/server/fima_server_interventions.R")
 source(file = "R/server/fima_alternative_scenario.R")
+source(file = "R/server/fima_echarts_main.R")
+source(file = "R/server/fima_echarts_ratings.R")
 
 # -------------------------------------------------------------------------
 
@@ -21,11 +23,7 @@ source(file = "R/server/fima_alternative_scenario.R")
 # -------------------------------------------------------------------------
 
 server <- function(input, output, session) {
-  # -------------------------------------------------------------------------
-  # interventions
-  # -------------------------------------------------------------------------
-  
-  # Create a reactive value to track all selected interventions
+  # Create reactive values to track all selected interventions and instruments
   selected_interventions <- reactive({
     # Combine all selected interventions from different KPIs
     c(
@@ -33,27 +31,46 @@ server <- function(input, output, session) {
       if ("land_use" %in% input$kpi_selection) input$land_use_interventions else c()
     )
   })
-  # -------------------------------------------------------------------------
-  # data --------------------------------------------------------------------
-  # data preparation
-  # -------------------------------------------------------------------------
-  server_data_baseline <- fima_baseline_scenario()
   
-  get_interventions <- reactive({
-    req(selected_interventions())
-    fima_data_interventions(chosen_interventions = selected_interventions())
+  # Create reactive value to track all selected instruments
+  selected_instruments <- reactive({
+    # Check if either protection_gap or land_use KPIs are selected
+    if (any(c("protection_gap", "land_use") %in% input$kpi_selection)) {
+      # Return the selected instruments from the id_instruments checkboxGroupInput
+      input$id_instruments
+    } else {
+      # Return empty vector if neither KPI is selected
+      c()
+    }
   })
   
-  server_data_interventions <- interventions_results <- reactive({
-    req(server_data_baseline, get_interventions())
-    # Apply function with current selections
-    fima_server_interventions(
-      data_baseline = server_data_baseline,
-      data_interventions = get_interventions(),
-      chosen_interventions = selected_interventions()
+  # -------------------------------------------------------------------------
+  # data preparation
+  # -------------------------------------------------------------------------
+  # baseline data
+  server_data_baseline <- fima_baseline_scenario()
+  
+  # interventions and instruments data
+  get_interventions_and_instruments <- reactive({
+    req(selected_interventions())
+    fima_data_interventions(
+      chosen_interventions = selected_interventions(), 
+      chosen_instruments = selected_instruments()
     )
   })
   
+  # Apply interventions and instruments to calculate policy shocks
+  server_data_interventions <- interventions_results <- reactive({
+    req(server_data_baseline, get_interventions_and_instruments())
+    # Apply function with current selections
+    fima_server_interventions(
+      data_baseline = server_data_baseline,
+      data_interventions = get_interventions_and_instruments(),
+      chosen_interventions = selected_interventions(),
+      chosen_instruments = selected_instruments()
+    )
+  })
+  # alternative scenario data
   server_data_alternative <- reactive({
     req(server_data_interventions())
     fima_alternative_scenario(
@@ -653,10 +670,10 @@ server <- function(input, output, session) {
         fontSize = 12, fontColour = "#FFFFFF", halign = "center",
         fgFill = "#4F81BD", border = "TopBottom", borderColour = "#4F81BD"
       )
-      addStyle(wb, "Baseline Scenario", headerStyle, rows = 1, cols = 1:ncol(server_data_baseline))
+      addStyle(wb, "Baseline Scenario", headerStyle, rows = 1, cols = 1:ncol(baseline_data))
       
       # Auto-size columns
-      setColWidths(wb, "Baseline Scenario", cols = 1:ncol(server_data_baseline), widths = "auto")
+      setColWidths(wb, "Baseline Scenario", cols = 1:ncol(baseline_data), widths = "auto")
       
       # Add the second sheet with alternative scenario data
       alternative_data <- server_data_tab() %>% 
@@ -699,276 +716,59 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   # Credit rating 
   output$home_credit_rating <- echarts4r::renderEcharts4r({
-    # Generate labels for all possible ratings
-    rating_labels <- fima_cra_y_axis(y_values = 1:22)
-    
-    # Convert the mapping to JSON for all ratings
-    rating_json <- jsonlite::toJSON(setNames(rating_labels, 1:22))
-    
-    server_data_alternative_viz() %>% 
-      select(c(year, credit_rating_number, group)) %>% 
-      mutate(
-        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
-      ) %>% 
-      dplyr::group_by(group) %>%
-      echarts4r::e_charts(year) %>%
-      echarts4r::e_line(credit_rating_number) %>%
-      echarts4r::e_x_axis(
-        name = "",
-        type = "category"
-      ) %>%
-      echarts4r::e_y_axis(
-        scale = FALSE,
-        # Let's use JavaScript formatter for dynamic min/max
-        min = "dataMin",  # Use data minimum
-        max = "dataMax",  # Use data maximum
-        minInterval = 1,  # Ensure integer steps
-        axisLabel = list(
-          formatter = htmlwidgets::JS(paste0("
-        function(value) {
-          var labels = ", rating_json, ";
-          return labels[Math.round(value)] || value;
-        }
-      "))
-        )
-      ) %>%
-      echarts4r::e_legend(
-        bottom = "0%",
-        orient = "horizontal",
-        x = "center",
-        padding = c(5, 10, 5, 10)
-      ) %>%
-      echarts4r::e_tooltip(
-        trigger = "axis",
-        formatter = htmlwidgets::JS(paste0("
-        function(params) {
-          var year = params[0].axisValue;
-          var result = year;
-          var labels = ", rating_json, ";
-          
-          params.forEach(function(param) {
-            var numValue = Number(param.value[1]);
-            var formattedValue = labels[Math.round(numValue)] || numValue.toFixed(3);
-            result += '<br/>' + param.marker + param.seriesName + ': ' + formattedValue;
-          });
-          return result;
-        }
-      ")),
-        axisPointer = list(
-          type = "cross"
-        )
-      ) %>%
-      echarts4r::e_grid(
-        containLabel = TRUE,
-        top = "5%",  
-        bottom = "7%",
-        left = "5%",
-        right = "5%"
-      ) %>%
-      e_toolbox_feature(feature = c("saveAsImage"))
+    fima_echarts_ratings(
+      data = server_data_alternative_viz(),
+      x_col = "year",
+      y_col = "credit_rating_number",
+      group_col = "group",
+      group_levels = c("Baseline Scenario", "Alternative Scenario")
+    )
   })
   # General government gross debt (% GDP)
   output$home_debt_ngdp <- echarts4r::renderEcharts4r({
-    server_data_alternative_viz() %>% 
-      select(c(year, gross_debt_pct_gdp, group)) %>% 
-      mutate(
-        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
-      ) %>% 
-      dplyr::group_by(group) %>%
-      echarts4r::e_charts(year) %>%
-      echarts4r::e_line(gross_debt_pct_gdp) %>%
-      echarts4r::e_x_axis(
-        name = "",
-        type = "category"
-      ) %>%
-      echarts4r::e_y_axis(
-        scale = TRUE
-      ) %>%
-      echarts4r::e_legend(
-        bottom = "0%",
-        orient = "horizontal",
-        x = "center",
-        padding = c(5, 10, 5, 10)
-      ) %>%
-      echarts4r::e_tooltip(
-        trigger = "axis",
-        formatter = htmlwidgets::JS("
-        function(params) {
-          var year = params[0].axisValue;
-          var result = year;
-          params.forEach(function(param) {
-            var value = Number(param.value[1]).toFixed(3);
-            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
-          });
-          return result;
-        }
-      "),
-        axisPointer = list(
-          type = "cross"
-        )
-      ) %>%
-      echarts4r::e_grid(
-        containLabel = TRUE,
-        top = "5%",  
-        bottom = "7%",
-        left = "5%",
-        right = "5%"
-      ) %>%
-      e_toolbox_feature(feature = c("saveAsImage"))
+    fima_echarts_main(
+      data = server_data_alternative_viz(),
+      x_col = "year",
+      y_col = "gross_debt_pct_gdp",
+      group_col = "group",  # Make sure this column exists
+      group_levels = c("Baseline Scenario", "Alternative Scenario")
+    ) 
   })
   
   # Nominal GDP growth (%)
   output$home_ngdp_growth <- echarts4r::renderEcharts4r({
-    server_data_alternative_viz() %>% 
-      select(c(year, gdp_growth_pct, group)) %>% 
-      mutate(
-        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
-      ) %>% 
-      dplyr::group_by(group) %>%
-      echarts4r::e_charts(year) %>%
-      echarts4r::e_line(gdp_growth_pct) %>%
-      echarts4r::e_x_axis(
-        name = "",
-        type = "category"
-      ) %>%
-      echarts4r::e_y_axis(
-        scale = TRUE
-      ) %>%
-      echarts4r::e_legend(
-        bottom = "0%",
-        orient = "horizontal",
-        x = "center",
-        padding = c(5, 10, 5, 10)
-      ) %>%
-      echarts4r::e_tooltip(
-        trigger = "axis",
-        formatter = htmlwidgets::JS("
-        function(params) {
-          var year = params[0].axisValue;
-          var result = year;
-          params.forEach(function(param) {
-            var value = Number(param.value[1]).toFixed(3);
-            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
-          });
-          return result;
-        }
-      "),
-        axisPointer = list(
-          type = "cross"
-        )
-      ) %>%
-      echarts4r::e_grid(
-        containLabel = TRUE,
-        top = "5%",  
-        bottom = "7%",
-        left = "5%",
-        right = "5%"
-      ) %>%
-      e_toolbox_feature(feature = c("saveAsImage"))
+    fima_echarts_main(
+      data = server_data_alternative_viz(),
+      x_col = "year",
+      y_col = "gdp_growth_pct",
+      group_col = "group",  # Make sure this column exists
+      group_levels = c("Baseline Scenario", "Alternative Scenario")
+    )
   })
   
   # General government interest payments (% Revenue)
   output$home_ir_revenue <- echarts4r::renderEcharts4r({
-    server_data_alternative_viz() %>% 
-      select(c(year, interest_payments_pct_revenue, group)) %>% 
-      mutate(
-        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
-      ) %>% 
-      dplyr::group_by(group) %>%
-      echarts4r::e_charts(year) %>%
-      echarts4r::e_line(interest_payments_pct_revenue) %>%
-      echarts4r::e_x_axis(
-        name = "",
-        type = "category"
-      ) %>%
-      echarts4r::e_y_axis(
-        scale = TRUE
-      ) %>%
-      echarts4r::e_legend(
-        bottom = "0%",
-        orient = "horizontal",
-        x = "center",
-        padding = c(5, 10, 5, 10)
-      ) %>%
-      echarts4r::e_tooltip(
-        trigger = "axis",
-        formatter = htmlwidgets::JS("
-        function(params) {
-          var year = params[0].axisValue;
-          var result = year;
-          params.forEach(function(param) {
-            var value = Number(param.value[1]).toFixed(3);
-            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
-          });
-          return result;
-        }
-      "),
-        axisPointer = list(
-          type = "cross"
-        )
-      ) %>%
-      echarts4r::e_grid(
-        containLabel = TRUE,
-        top = "5%",  
-        bottom = "7%",
-        left = "5%",
-        right = "5%"
-      ) %>%
-      e_toolbox_feature(feature = c("saveAsImage"))
+    fima_echarts_main(
+      data = server_data_alternative_viz(),
+      x_col = "year",
+      y_col = "interest_payments_pct_revenue",
+      group_col = "group",  # Make sure this column exists
+      group_levels = c("Baseline Scenario", "Alternative Scenario")
+    )
   })
   
   # General government primary balance (% of Nominal GDP)
   output$home_pb <- echarts4r::renderEcharts4r({
-    server_data_alternative_viz() %>% 
-      select(c(year, primary_net_lending_pct_gdp, group)) %>% 
-      mutate(
-        group = factor(x = group, levels = c("Baseline Scenario","Alternative Scenario"))
-      ) %>% 
-      dplyr::group_by(group) %>%
-      echarts4r::e_charts(year) %>%
-      echarts4r::e_line(primary_net_lending_pct_gdp) %>%
-      echarts4r::e_x_axis(
-        name = "",
-        type = "category"
-      ) %>%
-      echarts4r::e_y_axis(
-        scale = TRUE
-      ) %>%
-      echarts4r::e_legend(
-        bottom = "0%",
-        orient = "horizontal",
-        x = "center",
-        padding = c(5, 10, 5, 10)
-      ) %>%
-      echarts4r::e_tooltip(
-        trigger = "axis",
-        formatter = htmlwidgets::JS("
-        function(params) {
-          var year = params[0].axisValue;
-          var result = year;
-          params.forEach(function(param) {
-            var value = Number(param.value[1]).toFixed(3);
-            result += '<br/>' + param.marker + param.seriesName + ': ' + value;
-          });
-          return result;
-        }
-      "),
-        axisPointer = list(
-          type = "cross"
-        )
-      ) %>%
-      echarts4r::e_grid(
-        containLabel = TRUE,
-        top = "5%",  
-        bottom = "7%",
-        left = "5%",
-        right = "5%"
-      ) %>%
-      e_toolbox_feature(feature = c("saveAsImage"))
+    fima_echarts_main(
+      data = server_data_alternative_viz(),
+      x_col = "year",
+      y_col = "primary_net_lending_pct_gdp",
+      group_col = "group",  # Make sure this column exists
+      group_levels = c("Baseline Scenario", "Alternative Scenario")
+    )
   })
   
 }
-
 
 # end: --------------------------------------------------------------------
 

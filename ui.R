@@ -57,7 +57,25 @@ intervention_display_names <- list(
   large_and_medium_scale_irrigation = "Large and Medium Scale Irrigation",
   climate_resilient_seeds = "Climate-resilient Seeds"
 )
+# instruments
+instruments_data <- list(
+  financial_instruments = c("sustainability_linked_bonds", 
+                            "sustainability_linked_loans", 
+                            "debt_for_nature_swaps", 
+                            "carbon_credits", 
+                            "biodiversity_credits", 
+                            "credit_enhancement")
+)
 
+# Create nice display names for instruments
+instruments_display_names <- list(
+  sustainability_linked_bonds = "Sustainability-linked bonds",
+  sustainability_linked_loans = "Sustainability-linked loans",
+  debt_for_nature_swaps = "Debt-for-nature swaps",
+  carbon_credits = "Carbon credits",
+  biodiversity_credits = "Biodiversity credits",
+  credit_enhancement = "Credit enhancement"
+)
 # -------------------------------------------------------------------------
 # UI
 # -------------------------------------------------------------------------
@@ -255,13 +273,8 @@ ui <- bslib::page_navbar(
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
-          tags$style(HTML("
-            .sidebar-content {
-              height: auto;
-              overflow-y: auto;
-              padding-right: 5px;
-            }
-          ")),
+          id = "analysis_sidebar",
+          class = "tab-analysis-sidebar",
           # KPIs checkbox
           conditionalPanel(
             condition = "input.id_country == 'Ruritania'",
@@ -283,6 +296,27 @@ ui <- bslib::page_navbar(
               )
             )
           ),
+          # Instruments
+          conditionalPanel(
+            "input.id_country !== null && 
+               input.id_country !== '' && 
+               input.kpi_selection.length > 0 && 
+               (input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use'))",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("Instruments"),
+              checkboxGroupInput(
+                inputId = "id_instruments",
+                label = NULL,
+                choices = setNames(
+                  instruments_data$financial_instruments,
+                  sapply(instruments_data$financial_instruments, function(x) instruments_display_names[[x]])
+                ),
+                selected = NULL
+              )
+            )
+          ),
           # protection gap interventions checkbox
           conditionalPanel(
             condition = "input.kpi_selection.includes('protection_gap')",
@@ -290,7 +324,6 @@ ui <- bslib::page_navbar(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Protection Gap"),
               h6("(Interventions)"),
-              br(),
               checkboxGroupInput(
                 inputId = "protection_gap_interventions",
                 label = NULL,
@@ -309,7 +342,6 @@ ui <- bslib::page_navbar(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Land Use"),
               h6("(Interventions)"),
-              br(),
               checkboxGroupInput(
                 inputId = "land_use_interventions",
                 label = NULL,
@@ -424,6 +456,9 @@ ui <- bslib::page_navbar(
     title = "Data",
     bslib::card(
       bslib::layout_sidebar(
+        # -------------------------------------------------------------------------
+        # sidebar content in data tab
+        # -------------------------------------------------------------------------
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
           # overview note
@@ -466,7 +501,6 @@ ui <- bslib::page_navbar(
             )
           )
         ),
-
         # -------------------------------------------------------------------------
         # main content in data tab
         # -------------------------------------------------------------------------
