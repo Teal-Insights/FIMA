@@ -23,6 +23,26 @@ source(file = "R/server/fima_echarts_ratings.R")
 # -------------------------------------------------------------------------
 
 server <- function(input, output, session) {
+
+  # -------------------------------------------------------------------------
+  # Hide tabs initially
+  # -------------------------------------------------------------------------
+  shiny::hideTab(inputId = "main_navbar", target = "analysis")
+  shiny::hideTab(inputId = "main_navbar", target = "data")
+  shiny::hideTab(inputId = "main_navbar", target = "docs")
+  
+  observeEvent(input$id_country, {
+    if (!is.null(input$id_country) && input$id_country != "") {
+      shiny::showTab(inputId = "main_navbar", target = "analysis")
+      shiny::showTab(inputId = "main_navbar", target = "data")
+      shiny::showTab(inputId = "main_navbar", target = "docs")
+      updateNavbarPage(session, "main_navbar", selected = "analysis")
+    }
+  })
+  # -------------------------------------------------------------------------
+  # Hide tabs initially
+  # -------------------------------------------------------------------------
+  
   # Create reactive values to track all selected interventions and instruments
   selected_interventions <- reactive({
     # Combine all selected interventions from different KPIs

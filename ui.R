@@ -81,8 +81,7 @@ instruments_display_names <- list(
 # -------------------------------------------------------------------------
 # Define UI
 ui <- bslib::page_navbar(
-  # Initialize shinyjs
-  shinyjs::useShinyjs(),
+  id = "main_navbar",
   fillable = TRUE,
   # Navbar configuration
   bg = "#2c3e50",
@@ -166,31 +165,31 @@ ui <- bslib::page_navbar(
             )
           ),
           # step 1
-         tags$div(
-           class = "guide-box p-2 mb-0 border rounded",
-           # step 1
-           h5("Step 1 : Select Country"),
-           p(
-             "Under select country dropdown, select country of your choice 
+          tags$div(
+            class = "guide-box p-2 mb-0 border rounded",
+            # step 1
+            h5("Step 1 : Select Country"),
+            p(
+              "Under select country dropdown, select country of your choice 
           (preferably Ruritania), it will display vulnerabilities it is exposed
           to and a list of Key Performance Indicators (KPIs)."
-           ),
-           
-           # step 2
-           h5("Step 2 : Check KPI(s) of choice"),
-           p(
-             "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
+            ),
+            
+            # step 2
+            h5("Step 2 : Check KPI(s) of choice"),
+            p(
+              "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
              This will enable respective interventions to display thereafter."
-           ),
-           
-           # step 3
-           h5("Step 3 : Interact with Interventions"),
-           p(
-             "Once the interventions are displayed, one can start checking the 
+            ),
+            
+            # step 3
+            h5("Step 3 : Interact with Interventions"),
+            p(
+              "Once the interventions are displayed, one can start checking the 
               interventions and then check the charts in 'Analysis' tab to see 
               if there is any deviation."
-           )
-         ),
+            )
+          ),
         )
       ),
       # Risk Assessment
@@ -269,6 +268,7 @@ ui <- bslib::page_navbar(
   # -------------------------------------------------------------------------
   bslib::nav_panel(
     title = "Analysis",
+    value = "analysis",
     bslib::card(
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
@@ -454,6 +454,7 @@ ui <- bslib::page_navbar(
   # -------------------------------------------------------------------------
   bslib::nav_panel(
     title = "Data",
+    value = "data",
     bslib::card(
       bslib::layout_sidebar(
         # -------------------------------------------------------------------------
@@ -535,19 +536,19 @@ ui <- bslib::page_navbar(
                (input.protection_gap_interventions.length > 0 || 
                 input.land_use_interventions.length > 0)",
             
-           # table output
-           card(
-             full_screen = TRUE,
-             card_header(
-               # title
-               "Alternative Scenario data",
-               # class
-               class = "bg-primary text-white",
-             ),
-             bslib::card_body(
-               reactable::reactableOutput("data_table_alternative")
-             )
-           )
+            # table output
+            card(
+              full_screen = TRUE,
+              card_header(
+                # title
+                "Alternative Scenario data",
+                # class
+                class = "bg-primary text-white",
+              ),
+              bslib::card_body(
+                reactable::reactableOutput("data_table_alternative")
+              )
+            )
           )
         )
       )
@@ -558,6 +559,7 @@ ui <- bslib::page_navbar(
   # -------------------------------------------------------------------------
   bslib::nav_panel(
     title = "Documentation",
+    value = "docs",
     # Documentation component
     ui_documentation_component()
   ),
