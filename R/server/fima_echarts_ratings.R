@@ -1,13 +1,13 @@
 
 # starts: -----------------------------------------------------------------
 fima_echarts_ratings <- function(
-    data,                   # Data frame containing the data
-    x_col,                  # Column name for x-axis (typically "year")
-    y_col,                  # Column name for credit rating values
-    group_col = NULL,       # Optional column name for grouping (faceting)
-    group_levels = NULL,    # Optional custom ordering for group levels
-    title = NULL,           # Optional chart title
-    x_axis_name = ""        # Optional x-axis label
+    data,                   
+    x_col,                  
+    y_col,                  
+    group_col = NULL,       
+    group_levels = NULL,    
+    title = NULL,           
+    x_axis_name = ""
 ) {
   # Check if required columns exist in the data
   if (!x_col %in% colnames(data)) {
@@ -39,16 +39,6 @@ fima_echarts_ratings <- function(
     # Group by the specified column
     plot_data <- plot_data %>% dplyr::group_by(!!sym(group_col))
   }
-  
-  # Generate rating labels
-  rating_labels <- c(
-    "AAA", "AA+", "AA", "AA-", "A+", "A", "A-", 
-    "BBB+", "BBB", "BBB-", "BB+", "BB", "BB-", 
-    "B+", "B", "B-", "CCC+", "CCC", "CCC-", "CC", "C", "RD"
-  )
-  
-  # Convert the mapping to JSON for all ratings
-  rating_json <- jsonlite::toJSON(setNames(rating_labels, 1:22))
   
   # Start building the chart
   chart <- plot_data %>%
@@ -183,7 +173,7 @@ fima_echarts_ratings <- function(
   chart <- chart %>%
     echarts4r::e_toolbox(
       orient = "horizontal",
-      right = 15,
+      right = 1,
       top = 0,
       feature = list(
         # Image download option
