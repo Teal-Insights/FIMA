@@ -36,13 +36,12 @@ server <- function(input, output, session) {
       shiny::showTab(inputId = "main_navbar", target = "analysis")
       shiny::showTab(inputId = "main_navbar", target = "data")
       shiny::showTab(inputId = "main_navbar", target = "docs")
-      updateNavbarPage(session, "main_navbar", selected = "analysis")
+      # updateNavbarPage(session, "main_navbar", selected = "analysis")
     }
   })
   # -------------------------------------------------------------------------
-  # Hide tabs initially
+  # selected interventions and instruments
   # -------------------------------------------------------------------------
-  
   # Create reactive values to track all selected interventions and instruments
   selected_interventions <- reactive({
     # Combine all selected interventions from different KPIs
@@ -67,8 +66,78 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   # data preparation
   # -------------------------------------------------------------------------
+  # selected country
+  server_selected_country <- reactive({input$id_country})
+  # One off adjustment to stock of debt (LCU billions)
+  server_data_adjustment <- reactive({
+    fima_adjustment(by_country = server_selected_country())
+  })
+  # selected KPIs
+  server_data_kpi <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "Interventions") %>% 
+      filter(country == input$id_country) %>% 
+      pull(type) %>% 
+      unique() %>% 
+      sort()
+  })
+  # selected land use interventions
+  server_data_lu_interventions <- reactive({
+    # Add debugging print statements
+    print(paste("Current country selected:", input$id_country))
+    
+    interventions <- readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "Interventions") %>% 
+      filter(country == input$id_country) %>% 
+      filter(type == "Land Use") %>% 
+      pull(intervention) %>% 
+      unique() %>% 
+      sort()
+    
+    print("Filtered interventions:")
+    print(interventions)
+    
+    return(interventions)
+  })
+  # selected protection gap interventions
+  server_data_pg_interventions <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "Interventions") %>% 
+      filter(country == input$id_country) %>% 
+      filter(type == "Protection Gap") %>% 
+      pull(intervention) %>% 
+      unique() %>% 
+      sort()
+  })
+  # selected instruments
+  server_data_instruments <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "Instruments") %>% 
+      filter(country == input$id_country) %>% 
+      pull(instrument) %>% 
+      unique() %>% 
+      sort()
+  })
+  # selected vulnerabilities
+  server_data_vulnerabilities <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "Vulnerabilities") %>% 
+      filter(country == input$id_country) %>% 
+      pull(vulnerability) %>% 
+      unique() %>% 
+      sort()
+  })
   # baseline data
-  server_data_baseline <- fima_baseline_scenario()
+  server_data_baseline <- reactive({
+    fima_baseline_scenario(
+      by_country = server_selected_country()
+    )
+  })
   
   # interventions and instruments data
   get_interventions_and_instruments <- reactive({
@@ -81,10 +150,10 @@ server <- function(input, output, session) {
   
   # Apply interventions and instruments to calculate policy shocks
   server_data_interventions <- interventions_results <- reactive({
-    req(server_data_baseline, get_interventions_and_instruments())
+    req(server_data_baseline(), get_interventions_and_instruments())
     # Apply function with current selections
     fima_server_interventions(
-      data_baseline = server_data_baseline,
+      data_baseline = server_data_baseline(),
       data_interventions = get_interventions_and_instruments(),
       chosen_interventions = selected_interventions(),
       chosen_instruments = selected_instruments()
@@ -94,8 +163,9 @@ server <- function(input, output, session) {
   server_data_alternative <- reactive({
     req(server_data_interventions())
     fima_alternative_scenario(
-      data_baseline = server_data_baseline,
-      data_interventions = server_data_interventions()
+      data_baseline = server_data_baseline(),
+      data_interventions = server_data_interventions(),
+      data_adjustment = server_data_adjustment()
     )
   })
   
@@ -104,21 +174,21 @@ server <- function(input, output, session) {
     result <- tryCatch(
       {
         data <- fima_alternative_viz(
-          data_baseline = server_data_baseline,
+          data_baseline = server_data_baseline(),
           data_alternative = server_data_alternative()
         )
         
         # Check if the returned data exists (is not NULL or NA)
         if (is.null(data) || all(is.na(data))) {
           # Return baseline data if result is NULL or all NA
-          server_data_baseline %>% mutate(group = "Baseline Scenario")  
+          server_data_baseline() %>% mutate(group = "Baseline Scenario")  
         } else {
           data  # Return the alternative viz data if it exists
         }
       },
       error = function(e) {
         # Return the baseline data in case of error
-        server_data_baseline %>% mutate(group = "Baseline Scenario")
+        server_data_baseline() %>% mutate(group = "Baseline Scenario")
       },
       warning = function(w) {
         # Continue with the result
@@ -128,7 +198,7 @@ server <- function(input, output, session) {
     
     # If result is NULL after warning handler, return baseline
     if (is.null(result)) {
-      server_data_baseline %>% mutate(group = "Baseline Scenario")
+      server_data_baseline() %>% mutate(group = "Baseline Scenario")
     } else {
       result
     }
@@ -499,7 +569,7 @@ server <- function(input, output, session) {
   # render data - data tab - Baseline Scenario
   # -------------------------------------------------------------------------
   output$data_table_baseline <- renderReactable({
-    processed_data <- server_data_baseline %>% 
+    processed_data <- server_data_baseline() %>% 
       select(
         # year
         year, 
@@ -552,13 +622,13 @@ server <- function(input, output, session) {
     result <- tryCatch(
       {
         data <- fima_alternative_table(
-          data_baseline = server_data_baseline,
+          data_baseline = server_data_baseline(),
           data_alternative = server_data_alternative()
         )
         # Check if the returned data exists (is not NULL or NA)
         if (is.null(data) || all(is.na(data))) {
           # Return baseline data if result is NULL or all NA
-          server_data_baseline %>%
+          server_data_baseline() %>%
             select(
               year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
               primary_net_lending_billions,primary_net_lending_pct_gdp,
@@ -572,7 +642,7 @@ server <- function(input, output, session) {
       },
       error = function(e) {
         # Return the baseline data in case of error
-        server_data_baseline %>%
+        server_data_baseline() %>%
           select(
             year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
             primary_net_lending_billions,primary_net_lending_pct_gdp,
@@ -588,7 +658,7 @@ server <- function(input, output, session) {
     )
     # If result is NULL after warning handler, return baseline
     if (is.null(result)) {
-      server_data_baseline %>%
+      server_data_baseline() %>%
         select(
           year,gross_debt_billions, gross_debt_pct_gdp,nominal_interest_rate,
           primary_net_lending_billions,primary_net_lending_pct_gdp,
@@ -657,7 +727,7 @@ server <- function(input, output, session) {
     content = function(file) {
       # Create a new workbook
       wb <- createWorkbook()
-      baseline_data <- server_data_baseline %>% 
+      baseline_data <- server_data_baseline() %>% 
         select(
           # year
           year, 
@@ -787,7 +857,176 @@ server <- function(input, output, session) {
       group_levels = c("Baseline Scenario", "Alternative Scenario")
     )
   })
+  # -------------------------------------------------------------------------
+  # text output
+  # -------------------------------------------------------------------------
+  # KPI's
+  output$analysis_kpi <- renderText({
+    paste0("KPIs - ", input$id_country)
+  })
   
+  # baseline scenario
+  output$data_text_baseline <- renderText({
+    paste0(input$id_country, " - Baseline Scenario data")
+  })
+  
+  # alternative scenario
+  output$data_text_alternative <- renderText({
+    paste0(input$id_country, " - Alternative Scenario data")
+  })
+  # -------------------------------------------------------------------------
+  # server components
+  # -------------------------------------------------------------------------
+  # Vulnerabilities
+  output$vulnerability_list <- renderUI({
+    vulnerabilities <- server_data_vulnerabilities()
+    # Create the UI elements for the vulnerabilities list
+    tags$div(
+      class = "kpi-list",
+      lapply(vulnerabilities, function(item) {
+        tags$div(
+          class = "kpi-item",
+          tags$span(
+            class = "bullet-point",
+            HTML("&#8226;") # Bullet point character
+          ),
+          tags$span(
+            class = "kpi-label",
+            style = "margin-left: 8px;",
+            item
+          )
+        )
+      })
+    )
+  })
+  
+  #  KPIs
+  output$dynamic_kpi_checkboxes <- renderUI({
+    # Get the KPI options from your reactive component
+    kpi_options <- server_data_kpi()
+    
+    # Create internal values by converting each display name
+    internal_values <- sapply(kpi_options, function(kpi) {
+      tolower(gsub(" ", "_", kpi))
+    })
+    
+    # Create named vector where names are display labels and values are internal codes
+    kpi_choices <- setNames(internal_values, kpi_options)
+    
+    # Return the checkbox group with dynamic choices
+    checkboxGroupInput(
+      inputId = "kpi_selection",
+      label = NULL,
+      choices = kpi_choices,
+      selected = NULL
+    )
+  })
+  
+  # Add an observer to print selected values to console
+  observeEvent(input$kpi_selection, {
+    print(input$kpi_selection)
+  })
+  
+  # instruments
+  output$dynamic_instruments_checkboxes <- renderUI({
+    # Get the instruments options from your reactive component
+    instruments_options <- server_data_instruments()
+    
+    # Print the original instruments options to console
+    print("Available instruments options:")
+    print(instruments_options)
+    
+    # Create internal values by converting each display name
+    internal_values <- sapply(instruments_options, function(instrument) {
+      tolower(gsub(" |-", "_", instrument))
+    })
+    
+    # Create named vector where names are display labels and values are internal codes
+    # NOTE: The order is flipped here compared to the KPI implementation
+    instruments_choices <- setNames(internal_values, instruments_options)
+    
+    # Return the checkbox group with dynamic choices
+    checkboxGroupInput(
+      inputId = "id_instruments",
+      label = NULL,
+      choices = instruments_choices,
+      selected = NULL
+    )
+  })
+  
+  # Add an observer to print selected values to console
+  observeEvent(input$id_instruments, {
+    print("Selected instruments:")
+    print(input$id_instruments)
+  })
+  
+  # land use
+  output$dynamic_land_use_interventions_checkboxes <- renderUI({
+    # Get the land use interventions from your reactive component
+    lu_interventions_options <- server_data_lu_interventions()
+    
+    # Print the original options to console
+    print("Available land use interventions:")
+    print(lu_interventions_options)
+    
+    # Create internal values by converting each display name
+    internal_values <- sapply(lu_interventions_options, function(intervention) {
+      tolower(gsub(" |-", "_", intervention))
+    })
+    
+    # Create named vector where display names are the original values and internal values have underscores
+    lu_interventions_choices <- setNames(internal_values, lu_interventions_options)
+    
+    # Return the checkbox group with dynamic choices
+    checkboxGroupInput(
+      inputId = "land_use_interventions",
+      label = NULL,
+      choices = lu_interventions_choices,
+      selected = NULL
+    )
+  })
+  
+  # Add an observer to print selected values to console
+  observeEvent(input$land_use_interventions, {
+    print("Selected land use interventions:")
+    print(input$land_use_interventions)
+  })
+  # protection gap
+  output$dynamic_protection_gap_interventions_checkboxes <- renderUI({
+    # Get the protection gap interventions from your reactive component
+    pg_interventions_options <- server_data_pg_interventions()
+    
+    # Print the original options to console
+    print("Available protection gap interventions:")
+    print(pg_interventions_options)
+    
+    # Create internal values by converting each display name
+    internal_values <- sapply(pg_interventions_options, function(intervention) {
+      tolower(gsub(" |-", "_", intervention))
+    })
+    
+    # Create named vector where display names are the original values and internal values have underscores
+    pg_interventions_choices <- setNames(internal_values, pg_interventions_options)
+    
+    # Return the checkbox group with dynamic choices
+    checkboxGroupInput(
+      inputId = "protection_gap_interventions",
+      label = NULL,
+      choices = pg_interventions_choices,
+      selected = NULL
+    )
+  })
+  
+  # Add an observer to print selected values to console
+  observeEvent(input$protection_gap_interventions, {
+    print("Selected protection gap interventions:")
+    print(input$protection_gap_interventions)
+  })
+  
+  observeEvent(input$id_country, {
+    print("Current server_data_lu_interventions values after country change:")
+    print(server_data_lu_interventions())
+  })
 }
 
 # end: --------------------------------------------------------------------

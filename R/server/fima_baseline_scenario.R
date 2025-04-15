@@ -1,37 +1,34 @@
 
 # start: ------------------------------------------------------------------
-fima_baseline_scenario <- function(){
+fima_baseline_scenario <- function(by_country){
   # -------------------------------------------------------------------------
   # data
   # -------------------------------------------------------------------------
-  # Create the dataframe with all economic indicators
-  data_baseline <- data.frame(
-    # years
-    year = 2013:2029,
-    
-    # GDP data 
-    gdp_current_prices_billions = c(21350, 24136, 27086, 28687, 30492, 32506, 35379, 36278, 
-                                    40367, 43771, 47843, 52368, 57057, 61922, 67898, 73757, 79897),
-    
-    # Government debt data 
-    gross_debt_billions = c(5257, 6447, 7902, 8927, 9939, 11480, 13167, 16802, 
-                            20250, 24789, 27783, 31042, 31896, 33526, 35575, 38099, 40860),
-    
-    # Government net lending
-    net_lending_billions = c(-346, -378, -553, -854, -998, -944, -785, -1966, 
-                             -1961, -2982, -2508, -2121, -1737, -1885, -2013, -2193, -2403),
-    
-    # Government primary net lending
-    primary_net_lending_billions = c(-131, -165, -256, -494, -619, -510, -264, -1302, 
-                                     -1177, -2012, -1269, -854, -265, -422, -504, -620, -721),
-    
-    # Government revenue
-    revenue_billions = c(3040, 3293, 3917, 4189, 4523, 4764, 5299, 5424, 
-                         6295, 6684, 7771, 8776, 10047, 11068, 12298, 13475, 14894),
-    # credit rating
-    credit_rating = c(NA, "B", "B+", "B+", "B+", "B+", "B+", "B+", "BB-", "BB-",
-                      "BB-", "BB-", "BB-", "BB-", "BB-", "BB-", "BB-")
-  ) %>%
+  # read the macrofiscal data
+  df_macrofiscal_raw <- readxl::read_excel(
+    path = "data-raw/FIMA_APP.xlsx",
+    sheet = "Macrofiscal") %>% 
+    select(-c(indicator))
+  # clean the data
+  df_macrofiscal_clean <- df_macrofiscal_raw %>% 
+    filter(country == by_country) %>% 
+    mutate(across(matches("^\\d{4}$"), as.character)) %>%
+    pivot_longer(
+      cols = -c(country, col_name),
+      names_to = "year",
+      values_to = "values"
+    ) %>% 
+    pivot_wider(
+      names_from = col_name,
+      values_from = values
+    ) %>%
+    mutate(
+      year = as.integer(year),
+      across(-c(country, year, credit_rating), as.numeric),
+      credit_rating = case_when(
+        credit_rating == "NA" ~ NA, .default = credit_rating
+      )
+    ) %>%
     mutate(
       # Debt and fiscal metrics as percent of GDP
       gross_debt_pct_gdp = (gross_debt_billions / gdp_current_prices_billions) * 100,
@@ -97,7 +94,7 @@ fima_baseline_scenario <- function(){
   # Recursive
   # -------------------------------------------------------------------------
   # Create a copy of the baseline data
-  data_baseline_final <- data_baseline
+  data_baseline_final <- df_macrofiscal_clean
   
   # Identify future years (years > 2029)
   future_years <- which(data_baseline_final$year > 2029)

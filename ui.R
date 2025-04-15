@@ -17,65 +17,15 @@ source(file = "components/ui/ui_footer_component.R")
 source(file = "components/ui/ui_documentation_component.R")
 source(file = "components/ui/ui_analysis_value_boxes.R")
 
+# pick --------------------------------------------------------------------
+# country
+ui_data_countries <- readxl::read_excel(
+  path = "data-raw/FIMA_APP.xlsx",
+  sheet = "Instruments") %>% 
+  pull(country) %>% 
+  unique() %>% 
+  sort()
 
-# -------------------------------------------------------------------------
-# Define the interventions for each KPI
-intervention_data <- list(
-  protection_gap = c("catastrophe_bonds", 
-                     "insurance_premium_subsidies", 
-                     "microinsurance", 
-                     "cross_border_reinsurance", 
-                     "compulsory_insurance_coverage", 
-                     "insurance_bundling", 
-                     "risk_based_solvency_capital_requirements"),
-  
-  land_use = c("silvopasture", 
-               "reduced_till_farming", 
-               "dams_and_seawalls", 
-               "restoring_degraded_forest", 
-               "precision_agriculture", 
-               "agroforestry", 
-               "large_and_medium_scale_irrigation", 
-               "climate_resilient_seeds")
-)
-
-# Create nice display names for interventions
-intervention_display_names <- list(
-  catastrophe_bonds = "Catastrophe Bonds",
-  insurance_premium_subsidies = "Insurance Premium Subsidies",
-  microinsurance = "Microinsurance",
-  cross_border_reinsurance = "Cross-border Reinsurance",
-  compulsory_insurance_coverage = "Compulsory Insurance Coverage",
-  insurance_bundling = "Insurance Bundling",
-  risk_based_solvency_capital_requirements = "Risk-based Solvency Capital Requirements",
-  silvopasture = "Silvopasture",
-  reduced_till_farming = "Reduced-Till Farming",
-  dams_and_seawalls = "Dams and Seawalls",
-  restoring_degraded_forest = "Restoring Degraded Forest",
-  precision_agriculture = "Precision Agriculture",
-  agroforestry = "Agroforestry",
-  large_and_medium_scale_irrigation = "Large and Medium Scale Irrigation",
-  climate_resilient_seeds = "Climate-resilient Seeds"
-)
-# instruments
-instruments_data <- list(
-  financial_instruments = c("sustainability_linked_bonds", 
-                            "sustainability_linked_loans", 
-                            "debt_for_nature_swaps", 
-                            "carbon_credits", 
-                            "biodiversity_credits", 
-                            "credit_enhancement")
-)
-
-# Create nice display names for instruments
-instruments_display_names <- list(
-  sustainability_linked_bonds = "Sustainability-linked bonds",
-  sustainability_linked_loans = "Sustainability-linked loans",
-  debt_for_nature_swaps = "Debt-for-nature swaps",
-  carbon_credits = "Carbon credits",
-  biodiversity_credits = "Biodiversity credits",
-  credit_enhancement = "Credit enhancement"
-)
 # -------------------------------------------------------------------------
 # UI
 # -------------------------------------------------------------------------
@@ -208,7 +158,7 @@ ui <- bslib::page_navbar(
             shinyWidgets::pickerInput(
               inputId = "id_country",
               label = h5("Country"),
-              choices = c("Aurelia", "Ruritania", "Xenon"),
+              choices = ui_data_countries,
               options = shinyWidgets::pickerOptions(
                 actionsBox = TRUE,
                 size = 10,
@@ -227,35 +177,12 @@ ui <- bslib::page_navbar(
           #---------------
           # Conditional panel for vulnerabilities
           conditionalPanel(
-            condition = "input.id_country == 'Ruritania'",
+            condition = "input.id_country !== null && input.id_country !== ''",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               tags$div(
                 tags$h5("Vulnerabilities"),
-                tags$div(
-                  class = "kpi-list",
-                  lapply(c(
-                    "Landsides",
-                    "Hurricanes",
-                    "Flooding",
-                    "Costal erosion",
-                    "Soil erosion",
-                    "Droughts"
-                  ), function(item) {
-                    tags$div(
-                      class = "kpi-item",
-                      tags$span(
-                        class = "bullet-point",
-                        HTML("&#8226;") # Bullet point character
-                      ),
-                      tags$span(
-                        class = "kpi-label",
-                        style = "margin-left: 8px;",
-                        item
-                      )
-                    )
-                  })
-                )
+                uiOutput("vulnerability_list")  # This will be populated from the server
               )
             )
           )
@@ -277,62 +204,27 @@ ui <- bslib::page_navbar(
           class = "tab-analysis-sidebar",
           # KPIs checkbox
           conditionalPanel(
-            condition = "input.id_country == 'Ruritania'",
+            condition = "input.id_country !== null && input.id_country !== ''",
             # KPIs section
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
-              h5("KPIs"),
-              checkboxGroupInput(
-                inputId = "kpi_selection",
-                label = NULL,
-                choices = c(
-                  "Protection Gap" = "protection_gap",
-                  "Land Use" = "land_use",
-                  "GHG Emissions" = "ghg_emissions",
-                  "Biodiversity" = "biodiversity",
-                  "Water Quality" = "water_quality"
-                ),
-                selected = NULL
-              )
+              h5(textOutput(outputId = "analysis_kpi")),
+              uiOutput("dynamic_kpi_checkboxes")
             )
           ),
           # Instruments
+          # UI Component
           conditionalPanel(
-            "input.id_country !== null && 
-               input.id_country !== '' && 
-               input.kpi_selection.length > 0 && 
-               (input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use'))",
+            "input.id_country !== null && input.id_country !== '' && 
+            input.kpi_selection.length > 0 && 
+            (
+              input.kpi_selection.includes('protection_gap') || 
+              input.kpi_selection.includes('land_use')
+            )",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Instruments"),
-              checkboxGroupInput(
-                inputId = "id_instruments",
-                label = NULL,
-                choices = setNames(
-                  instruments_data$financial_instruments,
-                  sapply(instruments_data$financial_instruments, function(x) instruments_display_names[[x]])
-                ),
-                selected = NULL
-              )
-            )
-          ),
-          # protection gap interventions checkbox
-          conditionalPanel(
-            condition = "input.kpi_selection.includes('protection_gap')",
-            tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
-              h5("Protection Gap"),
-              h6("(Interventions)"),
-              checkboxGroupInput(
-                inputId = "protection_gap_interventions",
-                label = NULL,
-                choices = setNames(
-                  intervention_data$protection_gap,
-                  sapply(intervention_data$protection_gap, function(x) intervention_display_names[[x]])
-                ),
-                selected = NULL
-              )
+              uiOutput("dynamic_instruments_checkboxes")
             )
           ),
           # land use intervetnions checkbox
@@ -342,17 +234,17 @@ ui <- bslib::page_navbar(
               class = "guide-box p-2 mb-0 border rounded",
               h5("Land Use"),
               h6("(Interventions)"),
-              checkboxGroupInput(
-                inputId = "land_use_interventions",
-                label = NULL,
-                choices = setNames(
-                  intervention_data$land_use,
-                  sapply(
-                    intervention_data$land_use, 
-                    function(x) intervention_display_names[[x]])
-                ),
-                selected = NULL
-              )
+              uiOutput("dynamic_land_use_interventions_checkboxes")
+            )
+          ),
+          # protection gap interventions checkbox
+          conditionalPanel(
+            condition = "input.kpi_selection.includes('protection_gap')",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              h5("Protection Gap"),
+              h6("(Interventions)"),
+              uiOutput("dynamic_protection_gap_interventions_checkboxes")  # Dynamic checkboxes will be rendered here
             )
           )
         ),
@@ -477,8 +369,8 @@ ui <- bslib::page_navbar(
               tags$p(h5(icon("info-circle"), "Overview:"), class = "fw-bold"),
               tags$p(
                 "In Alternative Scenario, the projections start from 2024. 
-              The values before 2024 in Alternative Scenarios are baseline values 
-              hence similar to the Baseline Scenario values."
+                The values before 2024 in Alternative Scenarios are baseline 
+                values."
               )
             )
           ),
@@ -517,7 +409,7 @@ ui <- bslib::page_navbar(
               full_screen = TRUE,
               card_header(
                 # title
-                "Baseline Scenario data",
+                textOutput(outputId = "data_text_baseline"),
                 # class
                 class = "bg-primary text-white",
               ),
@@ -541,7 +433,7 @@ ui <- bslib::page_navbar(
               full_screen = TRUE,
               card_header(
                 # title
-                "Alternative Scenario data",
+                textOutput(outputId = "data_text_alternative"),
                 # class
                 class = "bg-primary text-white",
               ),

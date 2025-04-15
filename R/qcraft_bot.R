@@ -15,12 +15,20 @@ source(file = "R/server/fima_interventions.R")
 source(file = "R/server/fima_alternative_scenario.R")
 source(file = "R/server/fima_echarts_main.R")
 source(file = "R/server/fima_echarts_ratings.R")
+source(file = "R/server/fima_adjustment.R")
 
 # data: -------------------------------------------------------------------
+# country
+bot_country <- "Xenon"
 # baseline
-bot_baseline <- fima_baseline_scenario()
+bot_baseline <- fima_baseline_scenario(by_country = bot_country)
+bot_adjustment <- fima_adjustment(by_country = bot_country)
 bot_interventions <- fima_interventions(data_baseline = bot_baseline)
-bot_alternative <- fima_alternative_scenario(data_baseline = bot_baseline,data_interventions = bot_interventions)
+bot_alternative <- fima_alternative_scenario(
+  data_baseline = bot_baseline,
+  data_interventions = bot_interventions,
+  data_adjustment = bot_adjustment
+)
 bot_alternative_table <- fima_alternative_table(data_baseline = bot_baseline,data_alternative = bot_alternative)
 bot_alternative_viz <- fima_alternative_viz(data_baseline = bot_baseline,data_alternative = bot_alternative)
 # visualizations ----------------------------------------------------------

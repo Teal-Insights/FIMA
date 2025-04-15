@@ -1,6 +1,10 @@
 
 # start: ------------------------------------------------------------------
-fima_alternative_scenario <- function(data_baseline, data_interventions){
+fima_alternative_scenario <- function(
+    data_baseline, 
+    data_interventions,
+    data_adjustment
+    ){
   data_alternative <- data_baseline %>% 
     filter(year < 2024) %>% 
     select(
@@ -16,19 +20,20 @@ fima_alternative_scenario <- function(data_baseline, data_interventions){
     full_join(y = data_interventions, by = "year") %>% 
     left_join(y = data_baseline %>% select(year,revenue_billions),by = "year") %>% 
     # One off adjustment to stock of debt (LCU billions)
+    left_join(y = data_adjustment %>% select(-country), by = "year") %>% 
     mutate(
       one_off_adjustment_to_debt_stock = case_when(
-        year == 2024 ~ 1000, 
-        year > 2024 ~ 0,
-        .default = NA
+        is.na(one_off_adjustment_to_debt_stock) ~ 0 , 
+        .default = one_off_adjustment_to_debt_stock
       )
     )
   
   # Recursive
   data_alternative_combined <- data_alternative
   
-  # Identify future years (years > 2029)
+  # Identify future years
   future_years <- which(data_alternative_combined$year > 2023)
+  selected_country <- data_adjustment$country %>% unique()
   
   # Only proceed if there are future years to project
   if (length(future_years) > 0) {
@@ -92,16 +97,21 @@ fima_alternative_scenario <- function(data_baseline, data_interventions){
         data_alternative_combined$gross_debt_pct_gdp[i]
       
       # credit rating
-      data_alternative_combined$credit_rating_number[i] <- ifelse(
-        test = (data_alternative_combined$gross_debt_pct_gdp[i] > 43),
-        yes = 10,
-        no = 11
-      )
+      # credit rating
+      data_alternative_combined$credit_rating_number[i] <- 
+        if (selected_country == "Ruritania") {
+          ifelse(data_alternative_combined$gross_debt_pct_gdp[i] > 43, 10, 11)
+        } else if (selected_country == "Xenon") {
+          ifelse(data_alternative_combined$gross_debt_pct_gdp[i] > 36, 9, 10)
+        } else if (selected_country == "Aurelia") {
+          ifelse(data_alternative_combined$gross_debt_pct_gdp[i] > 25, 14, 15)
+        }
       
+      # Then convert the number to credit rating as you're already doing
       data_alternative_combined$credit_rating[i] <- 
         fima_number_to_credit_rating(
           number = data_alternative_combined$credit_rating_number[i]
-          )
+        )
     }
   }
   # return data
