@@ -922,11 +922,6 @@ server <- function(input, output, session) {
     )
   })
   
-  # Add an observer to print selected values to console
-  observeEvent(input$kpi_selection, {
-    print(input$kpi_selection)
-  })
-  
   # instruments
   output$dynamic_instruments_checkboxes <- renderUI({
     # Get the instruments options from your reactive component
@@ -954,21 +949,10 @@ server <- function(input, output, session) {
     )
   })
   
-  # Add an observer to print selected values to console
-  observeEvent(input$id_instruments, {
-    print("Selected instruments:")
-    print(input$id_instruments)
-  })
-  
   # land use
   output$dynamic_land_use_interventions_checkboxes <- renderUI({
     # Get the land use interventions from your reactive component
     lu_interventions_options <- server_data_lu_interventions()
-    
-    # Print the original options to console
-    print("Available land use interventions:")
-    print(lu_interventions_options)
-    
     # Create internal values by converting each display name
     internal_values <- sapply(lu_interventions_options, function(intervention) {
       tolower(gsub(" |-", "_", intervention))
@@ -986,20 +970,10 @@ server <- function(input, output, session) {
     )
   })
   
-  # Add an observer to print selected values to console
-  observeEvent(input$land_use_interventions, {
-    print("Selected land use interventions:")
-    print(input$land_use_interventions)
-  })
   # protection gap
   output$dynamic_protection_gap_interventions_checkboxes <- renderUI({
     # Get the protection gap interventions from your reactive component
     pg_interventions_options <- server_data_pg_interventions()
-    
-    # Print the original options to console
-    print("Available protection gap interventions:")
-    print(pg_interventions_options)
-    
     # Create internal values by converting each display name
     internal_values <- sapply(pg_interventions_options, function(intervention) {
       tolower(gsub(" |-", "_", intervention))
@@ -1015,17 +989,6 @@ server <- function(input, output, session) {
       choices = pg_interventions_choices,
       selected = NULL
     )
-  })
-  
-  # Add an observer to print selected values to console
-  observeEvent(input$protection_gap_interventions, {
-    print("Selected protection gap interventions:")
-    print(input$protection_gap_interventions)
-  })
-  
-  observeEvent(input$id_country, {
-    print("Current server_data_lu_interventions values after country change:")
-    print(server_data_lu_interventions())
   })
 }
 
