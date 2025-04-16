@@ -1,12 +1,60 @@
 
-.kpi-item, .interventions-item {
+.kpi-item {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  font-size: 1.2em;
 }
 
 .bullet-point {
-  font-size: 20px;
+  font-size: 30px;
   line-height: 1;
   color: #0aad18;
+}
+
+/*title on border*/
+.home-box-container {
+  position: relative;
+  margin-top: 15px;
+}
+
+.home-box-title {
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background-color: white;
+  padding: 0 10px;
+  font-weight: 600;
+  font-size: 1.1em;
+  z-index: 1;
+}
+
+.home-box {
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 10px;
+  position: relative;
+}
+
+.home-box p {
+  color: #000c;
+  margin-bottom: 8px;
+  padding-top: 0.4em;
+  font-size: 1.2em;
+}
+
+.home-box h5 {
+  font-weight: 600;
+}
+
+/*all paragraphs*/
+.steps p {
+  color: #000c;
+  margin-bottom: 8px;
+  font-size: 1.2em;
+}
+.steps h5 {
+  font-weight: 600;
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
 }

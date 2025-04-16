@@ -84,9 +84,6 @@ server <- function(input, output, session) {
   })
   # selected land use interventions
   server_data_lu_interventions <- reactive({
-    # Add debugging print statements
-    print(paste("Current country selected:", input$id_country))
-    
     interventions <- readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Interventions") %>% 
@@ -95,10 +92,6 @@ server <- function(input, output, session) {
       pull(intervention) %>% 
       unique() %>% 
       sort()
-    
-    print("Filtered interventions:")
-    print(interventions)
-    
     return(interventions)
   })
   # selected protection gap interventions
@@ -217,10 +210,11 @@ server <- function(input, output, session) {
   # Credit Rating
   output$vb_cra <- reactable::renderReactable({
     data <- server_data_alternative_viz() %>% 
-      filter(year %in% c(2025,2033)) %>% 
+      filter(year %in% c(2033)) %>% 
       select(year, credit_rating, Scenario = group) %>% 
       mutate(Scenario = str_remove_all(string = Scenario, pattern = " Scenario")) %>% 
       pivot_wider(names_from = year, values_from = credit_rating)
+    
     # Check if there are multiple scenarios to compare
     total_rows <- nrow(data) > 1
     
@@ -258,26 +252,16 @@ server <- function(input, output, session) {
         headerStyle = list(
           backgroundColor = bgc_header,
           color = "white",
-          padding = "2px 4px"  # Reduce header padding (vertical, horizontal)
+          padding = "2px 4px"  # Reduced header padding
         ),
         cellStyle = list(
-          padding = "2px 4px"  # Reduce cell padding to match
+          padding = "2px 4px"  # Reduced cell padding
         )
       ),
       compact = TRUE,
       columns = list(
-        Scenario = colDef(
-          width = 110,  # Slightly reduced
-          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
-        ),
-        `2025` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        ),
-        `2033` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        )
+        Scenario = colDef(width = 110, headerStyle = list(paddingLeft = "4px")),
+        `2033` = colDef(align = "right")
       ),
       width = "100%",
       bordered = FALSE
@@ -287,7 +271,7 @@ server <- function(input, output, session) {
   # Debt to Nominal GDP ratio,%
   output$vb_debt <- reactable::renderReactable({
     data <- server_data_alternative_viz() %>% 
-      filter(year %in% c(2025, 2033)) %>% 
+      filter(year %in% c(2033)) %>% 
       select(year, value = gross_debt_pct_gdp, Scenario = group) %>% 
       mutate(
         Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
@@ -336,18 +320,8 @@ server <- function(input, output, session) {
       ),
       compact = TRUE,
       columns = list(
-        Scenario = colDef(
-          width = 110,  # Slightly reduced
-          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
-        ),
-        `2025` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        ),
-        `2033` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        )
+        Scenario = colDef(width = 110, headerStyle = list(paddingLeft = "4px")),
+        `2033` = colDef(align = "right")
       ),
       width = "100%",
       bordered = FALSE
@@ -357,7 +331,7 @@ server <- function(input, output, session) {
   # Nominal GDP growth (%)
   output$vb_ngdp_growth <- reactable::renderReactable({
     data <- server_data_alternative_viz() %>% 
-      filter(year %in% c(2025,2033)) %>% 
+      filter(year %in% c(2033)) %>% 
       select(year, value = gdp_growth_pct, Scenario = group) %>% 
       mutate(
         Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
@@ -406,18 +380,8 @@ server <- function(input, output, session) {
       ),
       compact = TRUE,
       columns = list(
-        Scenario = colDef(
-          width = 110,  # Slightly reduced
-          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
-        ),
-        `2025` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        ),
-        `2033` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        )
+        Scenario = colDef(width = 110, headerStyle = list(paddingLeft = "4px")),
+        `2033` = colDef(align = "right")
       ),
       width = "100%",
       bordered = FALSE
@@ -426,7 +390,7 @@ server <- function(input, output, session) {
   # Interest Payments (% Revenue)
   output$vb_interest <- reactable::renderReactable({
     data <- server_data_alternative_viz() %>% 
-      filter(year %in% c(2025,2033)) %>% 
+      filter(year %in% c(2033)) %>% 
       select(year, value = interest_payments_pct_revenue, Scenario = group) %>% 
       mutate(
         Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
@@ -478,18 +442,8 @@ server <- function(input, output, session) {
       ),
       compact = TRUE,
       columns = list(
-        Scenario = colDef(
-          width = 110,  # Slightly reduced
-          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
-        ),
-        `2025` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        ),
-        `2033` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        )
+        Scenario = colDef(width = 110, headerStyle = list(paddingLeft = "4px")),
+        `2033` = colDef(align = "right")
       ),
       width = "100%",
       bordered = FALSE
@@ -499,7 +453,7 @@ server <- function(input, output, session) {
   # Primary Balance, % of Nominal GDP
   output$vb_pb <- reactable::renderReactable({
     data <- server_data_alternative_viz() %>% 
-      filter(year %in% c(2025,2033)) %>% 
+      filter(year %in% c(2033)) %>% 
       select(year, value = primary_net_lending_pct_gdp, Scenario = group) %>% 
       mutate(
         Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
@@ -548,22 +502,162 @@ server <- function(input, output, session) {
       ),
       compact = TRUE,
       columns = list(
-        Scenario = colDef(
-          width = 110,  # Slightly reduced
-          headerStyle = list(paddingLeft = "4px")  # Adjust left padding specifically
-        ),
-        `2025` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        ),
-        `2033` = colDef(
-          width = 75,  # Reduced width
-          align = "center"  # Center alignment helps with space perception
-        )
+        Scenario = colDef(width = 110, headerStyle = list(paddingLeft = "4px")),
+        `2033` = colDef(align = "right")
       ),
       width = "100%",
       bordered = FALSE
     )
+  })
+  # -------------------------------------------------------------------------
+  # render text on value boxes - analysis tab
+  # -------------------------------------------------------------------------
+  # Credit Rating
+  output$vb_cra_text <- renderText({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2033)) %>% 
+      select(Scenario = group, year, value = credit_rating_number) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = Scenario, values_from = value) 
+    
+    # Baseline and Alternative must exist
+    col_names_exist <- sum(names(data) %in% c("Baseline","Alternative")) == 2
+    
+    if (col_names_exist) {
+      data <- data %>% 
+        mutate(
+          net_baseline = round(x = (Alternative - Baseline),digits = 1)
+        )
+      # Store the result
+      result <- data %>% pull(net_baseline)
+      # Return the value to display in the UI
+      if (result > 0) {
+        paste0("Notch Upgrade: ", result)
+      }else if (result < 0) {
+        paste0("Notch Downgrade: ", result)
+      }
+    }
+    
+  })
+  # Debt, % of NGDP
+  output$vb_debt_text <- renderText({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2033)) %>% 
+      select(Scenario = group, year, value = gross_debt_pct_gdp) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = Scenario, values_from = value) 
+    
+    # Baseline and Alternative must exist
+    col_names_exist <- sum(names(data) %in% c("Baseline","Alternative")) == 2
+    
+    if (col_names_exist) {
+      data <- data %>% 
+        mutate(
+          net_baseline = round(x = (Alternative - Baseline),digits = 1)
+        )
+      # Store the result
+      result <- data %>% pull(net_baseline)
+      # Return the value to display in the UI
+      if (result < 0) {
+        paste0("% Points Decrease: ", result)
+      }else if (result > 0) {
+        paste0("% Points Increase: ", result)
+      }
+    }
+    
+  })
+  # NGDP Growth (%)
+  output$vb_ngdp_growth_text <- renderText({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2033)) %>% 
+      select(Scenario = group, year, value = gdp_growth_pct) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = Scenario, values_from = value) 
+    
+    # Baseline and Alternative must exist
+    col_names_exist <- sum(names(data) %in% c("Baseline","Alternative")) == 2
+    
+    if (col_names_exist) {
+      data <- data %>% mutate(net_baseline = round(x = (Alternative - Baseline),digits = 1))
+      # Store the result
+      result <- data %>% pull(net_baseline)
+      # Return the value to display in the UI
+      if (result > 0) {
+        paste0("% Points Increase: ", result)
+      }else if (result > 0) {
+        paste0("% Points Decrease: ", result)
+      }
+    }
+    
+  })
+  # Interest % of Revenue
+  output$vb_interest_text <- renderText({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2033)) %>% 
+      select(Scenario = group, year, value = interest_payments_pct_revenue) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = Scenario, values_from = value) 
+    
+    # Baseline and Alternative must exist
+    col_names_exist <- sum(names(data) %in% c("Baseline","Alternative")) == 2
+    
+    if (col_names_exist) {
+      data <- data %>% 
+        mutate(
+          net_baseline = round(x = (Alternative - Baseline),digits = 1)
+        )
+      # Store the result
+      result <- data %>% pull(net_baseline)
+      # Return the value to display in the UI
+      if (result < 0) {
+        paste0("% Points Decrease: ", result)
+      }else if (result > 0) {
+        paste0("% Points Increase: ", result)
+      }
+    }
+    
+  })
+  # Primary Balance, % of NGDP
+  output$vb_pb_text <- renderText({
+    data <- server_data_alternative_viz() %>% 
+      filter(year %in% c(2033)) %>% 
+      select(Scenario = group, year, value = primary_net_lending_pct_gdp) %>% 
+      mutate(
+        Scenario = str_remove_all(string = Scenario, pattern = " Scenario"),
+        value = round(x = value, digits = 1)
+      ) %>% 
+      pivot_wider(names_from = Scenario, values_from = value) 
+    
+    # Baseline and Alternative must exist
+    col_names_exist <- sum(names(data) %in% c("Baseline","Alternative")) == 2
+    
+    if (col_names_exist) {
+      data <- data %>% 
+        mutate(
+          net_baseline = round(x = (Alternative - Baseline),digits = 1)
+        )
+      # Store the result
+      result <- data %>% pull(net_baseline)
+      # Return the value to display in the UI
+      if (result < 0) {
+        paste0("% Points Decrease: ", result)
+      }else if (result > 0) {
+        paste0("% Points Increase: ", result)
+      }
+    }
+    
   })
   # -------------------------------------------------------------------------
   # render data - data tab - Baseline Scenario
@@ -926,11 +1020,6 @@ server <- function(input, output, session) {
   output$dynamic_instruments_checkboxes <- renderUI({
     # Get the instruments options from your reactive component
     instruments_options <- server_data_instruments()
-    
-    # Print the original instruments options to console
-    print("Available instruments options:")
-    print(instruments_options)
-    
     # Create internal values by converting each display name
     internal_values <- sapply(instruments_options, function(instrument) {
       tolower(gsub(" |-", "_", instrument))

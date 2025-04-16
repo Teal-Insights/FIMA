@@ -95,57 +95,86 @@ ui <- bslib::page_navbar(
       bslib::card(
         full_screen = TRUE,
         height = 400,
+        class = "border-0 shadow-none",
         bslib::card_header("About the FIMA Explorer App"),
         bslib::card_body(
           fillable = TRUE,
           fill = TRUE,
-          # About the app
+          # About the app with title on border
           tags$div(
-            class = "guide-box p-2 mb-0 border rounded",
-            h5("About the app"),
-            p(
-              "Financial Materiality Assessment (FIMA) Explorer App helps to 
-            analysis the impact of interventions based on their
-            Key Performance Indicators (KPIs) on key indicators such as:
-            Credit Rating, Debt-GDP ratio, %, Nominal GDP growth (%),
-            Interest Payments % Revenue and Primary Balance, % of Nominal GDP. 
-            For instance, does a country benefit from improved Protection Gap / 
-            Land use in terms of improved Credit Rating, lower Debt-GDP ratio, %,
-            as well well increased Nominal GDP growth (%)."
+            class = "home-box-container", 
+            style = "position: relative; margin-top: 10px; padding-top: 1px;",
+            
+            # Title that will appear on the border
+            tags$div(class = "home-box-title", "About the app"),
+            
+            # Content box
+            tags$div(
+              class = "home-box p-2 mb-0 border rounded steps",
+              p(
+                "Financial Materiality Assessment (FIMA) Explorer App helps to 
+                  analysis the impact of interventions based on their
+                  Key Performance Indicators (KPIs) on key indicators such as:
+                  Credit Rating, Debt-GDP ratio, %, Nominal GDP growth (%),
+                  Interest Payments % Revenue and Primary Balance, % of Nominal 
+                  GDP. For instance, does a country benefit from improved 
+                  Protection Gap / Land use in terms of improved Credit Rating, 
+                  lower Debt-GDP ratio, %, as well well increased Nominal GDP 
+                  growth (%).
+                "
+              )
             )
           ),
-          # step 1
+          # home tab with title on border
           tags$div(
-            class = "guide-box p-2 mb-0 border rounded",
-            # step 1
-            h5("Step 1 : Select Country"),
-            p(
-              "Under select country dropdown, select country of your choice 
-          (preferably Ruritania), it will display vulnerabilities it is exposed
-          to and a list of Key Performance Indicators (KPIs)."
-            ),
+            class = "home-box-container", 
+            style = "position: relative; margin-top: 10px; padding-top: 1px;",
+            # Title that will appear on the border
+            tags$div(class = "home-box-title", "Home tab"),
             
-            # step 2
-            h5("Step 2 : Check KPI(s) of choice"),
-            p(
-              "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
-             This will enable respective interventions to display thereafter."
-            ),
-            
-            # step 3
-            h5("Step 3 : Interact with Interventions"),
-            p(
-              "Once the interventions are displayed, one can start checking the 
-              interventions and then check the charts in 'Analysis' tab to see 
-              if there is any deviation."
+            # Content box
+            tags$div(
+              class = "home-box steps",
+              # step 1
+              h5("Step 1 : Select Country"),
+              p(
+                "Under select country dropdown, select country of your choice, 
+                  it will display vulnerabilities it is exposed to."
+              )
             )
           ),
+          # Analysis tab box with title on border
+          tags$div(
+            class = "home-box-container", 
+            style = "position: relative; margin-top: 10px; padding-top: 1px;",
+            
+            # Title that will appear on the border
+            tags$div(class = "home-box-title", "Analysis tab"),
+            
+            # Content box
+            tags$div(
+              class = "home-box steps",
+              # step 2
+              h5("Step 2 : Check KPI(s) of choice"),
+              p(
+                "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
+                  This will enable respective intstruments and interventions to display thereafter."
+              ),
+              # step 3
+              h5("Step 3 : Interact with Intstruments and Interventions"),
+              p(
+                "Once the intstruments and interventions are displayed, one can start checking them 
+                  and then check the charts in 'Analysis' tab to see if there is any deviation."
+              )
+            )
+          )
         )
       ),
       # Risk Assessment
       bslib::card(
         full_screen = TRUE,
         height = 400,
+        class = "border-0 shadow-none",
         bslib::card_header("Risk Assessment"),
         bslib::card_body(
           fillable = TRUE,
@@ -154,7 +183,7 @@ ui <- bslib::page_navbar(
           # select country
           #---------------
           tags$div(
-            class = "guide-box p-2 mb-0 border rounded",
+            class = "guide-box p-2 mb-0 border rounded steps",
             shinyWidgets::pickerInput(
               inputId = "id_country",
               label = h5("Country"),
@@ -179,7 +208,7 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "input.id_country !== null && input.id_country !== ''",
             tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
+              class = "guide-box p-2 mb-0 border rounded steps",
               tags$div(
                 tags$h5("Vulnerabilities"),
                 uiOutput("vulnerability_list")  # This will be populated from the server
@@ -197,6 +226,7 @@ ui <- bslib::page_navbar(
     title = "Analysis",
     value = "analysis",
     bslib::card(
+      class = "border-0 shadow-none",
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
@@ -348,6 +378,7 @@ ui <- bslib::page_navbar(
     title = "Data",
     value = "data",
     bslib::card(
+      class = "border-0 shadow-none",
       bslib::layout_sidebar(
         # -------------------------------------------------------------------------
         # sidebar content in data tab
@@ -384,7 +415,7 @@ ui <- bslib::page_navbar(
                (input.protection_gap_interventions.length > 0 || 
                 input.land_use_interventions.length > 0)",
             tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
+              class = "guide-box p-2 mb-0",
               downloadButton(
                 "download_data", 
                 "Download Data",
