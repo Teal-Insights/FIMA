@@ -49,11 +49,13 @@ ui <- bslib::page_navbar(
         style = "font-size: 1.5rem; font-weight: 600; color: white; line-height: 1.2;",
         "FIMA Explorer"
       ),
-      span(
-        class = "header-subtitle",
-        style = "font-size: 0.85rem; color: #ffcccc;",
-        "The app is under development"
-      )
+      # span(
+      #   class = "header-subtitle",
+      #   style = "font-size: 0.85rem; font-weight: 600; color: white;",
+      #   "Financial Materiality Assessment"
+      #   # style = "font-size: 0.85rem; color: #ffcccc;",
+      #   # "The app is under development"
+      # )
     )
   ),
   # CSS imports
@@ -96,7 +98,7 @@ ui <- bslib::page_navbar(
         full_screen = TRUE,
         height = 400,
         class = "border-0 shadow-none",
-        bslib::card_header("About the FIMA Explorer App"),
+        bslib::card_header(h5("About the FIMA Explorer App")),
         bslib::card_body(
           fillable = TRUE,
           fill = TRUE,
@@ -175,7 +177,7 @@ ui <- bslib::page_navbar(
         full_screen = TRUE,
         height = 400,
         class = "border-0 shadow-none",
-        bslib::card_header("Risk Assessment"),
+        bslib::card_header(h5("Risk Assessment")),
         bslib::card_body(
           fillable = TRUE,
           fill = TRUE,
@@ -183,22 +185,33 @@ ui <- bslib::page_navbar(
           # select country
           #---------------
           tags$div(
-            class = "guide-box p-2 mb-0 border rounded steps",
-            shinyWidgets::pickerInput(
-              inputId = "id_country",
-              label = h5("Country"),
-              choices = ui_data_countries,
-              options = shinyWidgets::pickerOptions(
-                actionsBox = TRUE,
-                size = 10,
-                selectedTextFormat = "count > 3",
-                liveSearch = TRUE,
-                liveSearchStyle = "contains",
-                liveSearchPlaceholder = "Select country...",
-                title = "Select country..."
-              ),
-              multiple = FALSE,
-              selected = NULL
+            class = "home-box-container", 
+            style = "position: relative; margin-top: 10px; padding-top: 1px;",
+            # Title that will appear on the border
+            tags$div(class = "home-box-title", "Country"),
+            # Content box
+            tags$div(
+              class = "home-box steps",
+              style = "padding-top: 10px; padding-bottom: 0px;", 
+              div(
+                style = "margin-top: 5px; margin-bottom: 0px;", 
+                shinyWidgets::pickerInput(
+                  inputId = "id_country",
+                  label = NULL,
+                  choices = ui_data_countries,
+                  options = shinyWidgets::pickerOptions(
+                    actionsBox = TRUE,
+                    size = 10,
+                    selectedTextFormat = "count > 3",
+                    liveSearch = TRUE,
+                    liveSearchStyle = "contains",
+                    liveSearchPlaceholder = "Select country...",
+                    title = "Select country..."
+                  ),
+                  multiple = FALSE,
+                  selected = NULL
+                )
+              )
             )
           ),
           #---------------
@@ -208,10 +221,17 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "input.id_country !== null && input.id_country !== ''",
             tags$div(
-              class = "guide-box p-2 mb-0 border rounded steps",
+              class = "home-box-container", 
+              style = "position: relative; margin-top: 10px; padding-top: 1px;",
+              # Title that will appear on the border
+              tags$div(class = "home-box-title", "Vulnerabilities"),
+              
+              # Content box
               tags$div(
-                tags$h5("Vulnerabilities"),
-                uiOutput("vulnerability_list")  # This will be populated from the server
+                class = "home-box steps",
+                tags$div(
+                  uiOutput("vulnerability_list")
+                )
               )
             )
           )
@@ -235,10 +255,15 @@ ui <- bslib::page_navbar(
           # KPIs checkbox
           conditionalPanel(
             condition = "input.id_country !== null && input.id_country !== ''",
+            # country
+            tags$span(
+              class = "analysis-country",
+              textOutput(outputId = "analysis_check_country")
+            ),
             # KPIs section
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
-              h5(textOutput(outputId = "analysis_kpi")),
+              h5("KPI(s)"),
               uiOutput("dynamic_kpi_checkboxes")
             )
           ),
@@ -394,6 +419,11 @@ ui <- bslib::page_navbar(
                 input.kpi_selection.includes('land_use')) &&
                (input.protection_gap_interventions.length > 0 || 
                 input.land_use_interventions.length > 0)",
+            # country
+            tags$span(
+              class = "data-country",
+              textOutput(outputId = "data_check_country")
+            ),
             # note
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
@@ -440,7 +470,7 @@ ui <- bslib::page_navbar(
               full_screen = TRUE,
               card_header(
                 # title
-                textOutput(outputId = "data_text_baseline"),
+                "Baseline Scenario data",
                 # class
                 class = "bg-primary text-white",
               ),
@@ -464,7 +494,7 @@ ui <- bslib::page_navbar(
               full_screen = TRUE,
               card_header(
                 # title
-                textOutput(outputId = "data_text_alternative"),
+                "Alternative Scenario data",
                 # class
                 class = "bg-primary text-white",
               ),

@@ -18,6 +18,18 @@
 .rt-tr:hover {
   background-color: #f0f5ff !important;
 }
+/*country*/
+.data-country {
+  text-align: center;
+  background-color: #2c946c;
+  border: 2px solid #0000;
+  border-radius: 6px;
+  align-self: flex-start;
+  padding: .6em 1em;
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 0.8;
+}
 
 /* data download button */
 .data-button {
@@ -26,11 +38,9 @@
     border: 2px solid #0000;
     border-radius: 6px;
     align-self: flex-start;
-    min-width: 120px;
-    max-width: 300px;
     padding: .6em 1em;
-    font-size: 1.1em;
-    font-weight: 400;
+    font-size: 1em;
+    font-weight: 600;
     line-height: 1;
     transition: background-color .25s;
 }
