@@ -90,8 +90,7 @@ server <- function(input, output, session) {
       filter(country == input$id_country) %>% 
       filter(type == "Land Use") %>% 
       pull(intervention) %>% 
-      unique() %>% 
-      sort()
+      unique()
     return(interventions)
   })
   # selected protection gap interventions
@@ -102,8 +101,7 @@ server <- function(input, output, session) {
       filter(country == input$id_country) %>% 
       filter(type == "Protection Gap") %>% 
       pull(intervention) %>% 
-      unique() %>% 
-      sort()
+      unique()
   })
   # selected instruments
   server_data_instruments <- reactive({
@@ -112,8 +110,7 @@ server <- function(input, output, session) {
       sheet = "Instruments") %>% 
       filter(country == input$id_country) %>% 
       pull(instrument) %>% 
-      unique() %>% 
-      sort()
+      unique()
   })
   # selected vulnerabilities
   server_data_vulnerabilities <- reactive({
@@ -955,18 +952,13 @@ server <- function(input, output, session) {
   # text output
   # -------------------------------------------------------------------------
   # KPI's
-  output$analysis_kpi <- renderText({
-    paste0("KPIs - ", input$id_country)
+  output$analysis_check_country <- renderText({
+    paste0("Country: ", input$id_country)
   })
   
-  # baseline scenario
-  output$data_text_baseline <- renderText({
-    paste0(input$id_country, " - Baseline Scenario data")
-  })
-  
-  # alternative scenario
-  output$data_text_alternative <- renderText({
-    paste0(input$id_country, " - Alternative Scenario data")
+  # data tab country
+  output$data_check_country <- renderText({
+    paste0("Country: ", input$id_country)
   })
   # -------------------------------------------------------------------------
   # server components
