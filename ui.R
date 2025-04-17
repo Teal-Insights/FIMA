@@ -215,6 +215,26 @@ ui <- bslib::page_navbar(
             )
           ),
           #---------------
+          # about country
+          #---------------
+          conditionalPanel(
+            condition = "input.id_country !== null && input.id_country !== ''",
+            tags$div(
+              class = "home-box-container", 
+              style = "position: relative; margin-top: 10px; padding-top: 1px;",
+              # Title that will appear on the border
+              tags$div(class = "home-box-title", textOutput(outputId = "about_country_header")),
+              
+              # Content box
+              tags$div(
+                class = "home-box steps",
+                tags$div(
+                  uiOutput("about_country_content")
+                )
+              )
+            )
+          ),
+          #---------------
           # Vulnerability
           #---------------
           # Conditional panel for vulnerabilities
@@ -252,7 +272,9 @@ ui <- bslib::page_navbar(
           bg = "#2c3e50",
           id = "analysis_sidebar",
           class = "tab-analysis-sidebar",
+          
           # KPIs checkbox
+          
           conditionalPanel(
             condition = "input.id_country !== null && input.id_country !== ''",
             # country
@@ -263,12 +285,40 @@ ui <- bslib::page_navbar(
             # KPIs section
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
-              h5("KPI(s)"),
-              uiOutput("dynamic_kpi_checkboxes")
+              style = "padding: 0 !important; overflow: hidden;",
+              tags$div(
+                style = "background-color: #2c3e50; color: white; padding: 10px 15px; font-size: 18px; font-weight: bold;",
+                "KPI Selection"
+              ),
+              tags$div(
+                style = "background-color: white; color: black; padding: 0;",
+                uiOutput("dynamic_kpi_checkboxes")
+              )
             )
+            
           ),
           # Instruments
-          # UI component
+          conditionalPanel(
+          "input.id_country !== null && input.id_country !== '' && 
+            input.kpi_selection.length > 0 && 
+            (
+              input.kpi_selection.includes('protection_gap') || 
+              input.kpi_selection.includes('land_use')
+            )",
+            tags$div(
+              class = "guide-box p-2 mb-0 border rounded",
+              style = "padding: 0 !important; overflow: hidden;",
+              tags$div(
+                style = "background-color: #2c3e50; color: white; padding: 10px 15px; font-size: 18px; font-weight: bold;",
+                "Instruments"
+              ),
+              tags$div(
+                style = "background-color: white; color: black; padding: 0;",
+                uiOutput("dynamic_instruments_checkboxes")
+              )
+            )
+          ),
+          # land use intervetnions checkbox
           conditionalPanel(
             "input.id_country !== null && input.id_country !== '' && 
               input.kpi_selection.length > 0 && 
@@ -277,30 +327,32 @@ ui <- bslib::page_navbar(
                 input.kpi_selection.includes('land_use')
               )",
             tags$div(
-              class = "instruments-panel",
-              style = "background-color: #2c3e50; color: white; padding: 10px; border-radius: 5px;",
-              h4("Instruments", style = "margin-top: 5px; margin-bottom: 15px;"),
-              uiOutput("dynamic_instruments_checkboxes")
-            )
-          ),
-          # land use intervetnions checkbox
-          conditionalPanel(
-            condition = "input.kpi_selection.includes('land_use')",
-            tags$div(
               class = "guide-box p-2 mb-0 border rounded",
-              h5("Land Use"),
-              h6("(Interventions)"),
+              style = "padding: 0 !important; overflow: hidden; background-color: #2c3e50;",
+              # Header
+              tags$div(
+                style = "color: white; padding: 10px 15px; font-size: 18px; font-weight: bold;",
+                "Land Use (Interventions)"
+              ),
+              # Dynamic land use interventions content
               uiOutput("dynamic_land_use_interventions_checkboxes")
             )
           ),
           # protection gap interventions checkbox
           conditionalPanel(
-            condition = "input.kpi_selection.includes('protection_gap')",
+            "input.id_country !== null && input.id_country !== '' && 
+              input.kpi_selection.length > 0 && 
+              input.kpi_selection.includes('protection_gap')",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
-              h5("Protection Gap"),
-              h6("(Interventions)"),
-              uiOutput("dynamic_protection_gap_interventions_checkboxes")  # Dynamic checkboxes will be rendered here
+              style = "padding: 0 !important; overflow: hidden; background-color: #2c3e50;",
+              # Header
+              tags$div(
+                style = "color: white; padding: 10px 15px; font-size: 18px; font-weight: bold;",
+                "Protection Gap (Interventions)"
+              ),
+              # Dynamic protection gap interventions content
+              uiOutput("dynamic_protection_gap_interventions_checkboxes")
             )
           )
         ),

@@ -36,7 +36,7 @@ create_custom_value_box <- function(title, output_id, output_text, bg_color = "#
 vbs <- list(
   create_custom_value_box("Credit Rating", "vb_cra", "vb_cra_text"),
   create_custom_value_box("Debt, % of GDP", "vb_debt", "vb_debt_text"),
-  create_custom_value_box("GDP Growth (%)", "vb_ngdp_growth", "vb_ngdp_growth_text"),
+  create_custom_value_box("Nominal GDP Growth (%)", "vb_ngdp_growth", "vb_ngdp_growth_text"),
   create_custom_value_box("Interest % of Revenue", "vb_interest", "vb_interest_text"),
   create_custom_value_box("Primary Balance, % of GDP", "vb_pb", "vb_pb_text")
 )

@@ -36,6 +36,7 @@
   min-height: 100%; 
   overflow-y: auto; 
   padding-right: 3px;
+  border-radius: 16px;
 }
 
 /*title on border*/
@@ -66,7 +67,7 @@
 /*country*/
 .analysis-country {
   text-align: center;
-  background-color: #2c946c;
+  background-color: #e8f5e8;
   border: 2px solid #0000;
   border-radius: 6px;
   align-self: flex-start;
@@ -74,4 +75,41 @@
   font-size: 1.2em;
   font-weight: 600;
   line-height: 0.8;
+  color: black;
+}
+/*instruments*/
+/* Ensure proper binding for Shiny */
+.shiny-input-container {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Fix checkbox alignment */
+.checkbox-column input[type='checkbox'] {
+  margin: 0;
+  border: 1px solid #ccc;
+}
+
+/* Fixed width for checkbox column */
+.checkbox-column {
+  width: 50px !important;
+  min-width: 50px !important;
+  flex-shrink: 0;
+}
+
+/* Allow label to wrap */
+.label-column label {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Ensure consistent row height */
+.instrument-row {
+  min-height: 36px;
+}
+
+/* Container styling */
+.guide-box {
+  border-radius: 10px !important;
+  overflow: hidden;
 }

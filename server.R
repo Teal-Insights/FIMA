@@ -589,9 +589,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result > 0) {
-        paste0(glue::glue("{abs(result)} % Increase in GDP Growth"))
+        paste0(glue::glue("{abs(result)} % Increase in Nominal GDP Growth"))
       }else if (result > 0) {
-        paste0(glue::glue("{abs(result)} % Decrease in GDP Growth"))
+        paste0(glue::glue("{abs(result)} % Decrease in Nominal GDP Growth"))
       }
     }
     
@@ -655,6 +655,47 @@ server <- function(input, output, session) {
       }
     }
     
+  })
+  # -------------------------------------------------------------------------
+  # home tab - about countries
+  # -------------------------------------------------------------------------
+  # data
+  server_data_about_country <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "About") %>% 
+      filter(country == input$id_country)
+  })
+  # header
+  output$about_country_header <- renderText({
+    glue::glue("About {input$id_country}")
+  })
+  
+  # content
+  output$about_country_content <- renderUI({
+    req(input$id_country)
+    
+    # Get data from your reactive component
+    country_data <- server_data_about_country()
+    
+    # Check if data exists for the selected country
+    if(is.null(country_data) || nrow(country_data) == 0) {
+      return(tags$p("No information available for this country."))
+    }
+    
+    # Create the two paragraphs
+    tagList(
+      # first paragraph
+      tags$div(
+        class = "country-about",
+        tags$p(country_data$about)
+      ),
+      # second paragraph
+      tags$div(
+        class = "country-vulnerabilities",
+        tags$p(country_data$prone_to)
+      )
+    )
   })
   # -------------------------------------------------------------------------
   # render data - data tab - Baseline Scenario
@@ -999,12 +1040,48 @@ server <- function(input, output, session) {
     # Create named vector where names are display labels and values are internal codes
     kpi_choices <- setNames(internal_values, kpi_options)
     
-    # Return the checkbox group with dynamic choices
-    checkboxGroupInput(
-      inputId = "kpi_selection",
-      label = NULL,
-      choices = kpi_choices,
-      selected = NULL
+    # Generate the HTML for the custom-styled checkbox group
+    items <- lapply(seq_along(kpi_choices), function(i) {
+      name <- names(kpi_choices)[i]
+      value <- kpi_choices[i]
+      
+      # Create a row with light green background
+      tags$div(
+        class = "kpi-row",
+        style = "display: flex; width: 100%; border-bottom: 1px solid #e0e0e0; background-color: #e8f5e8;",
+        
+        # Checkbox container
+        tags$div(
+          class = "checkbox-column",
+          style = "width: 50px; min-width: 50px; display: flex; justify-content: center; align-items: center;",
+          tags$input(
+            type = "checkbox",
+            name = "kpi_selection", 
+            id = paste0("kpi_selection_", i),
+            value = value,
+            style = "width: 20px; height: 20px; margin: 0;"
+          )
+        ),
+        
+        # Label container
+        tags$div(
+          class = "label-column",
+          style = "flex-grow: 1; padding: 8px 10px; min-height: 36px; display: flex; align-items: center; color: black;",
+          tags$label(
+            `for` = paste0("kpi_selection_", i),
+            style = "display: block; margin-bottom: 0; font-weight: normal; word-wrap: break-word;",
+            name
+          )
+        )
+      )
+    })
+    
+    # Create a div with the correct inputId to allow Shiny to bind to it
+    div(
+      id = "kpi_selection",
+      class = "form-group shiny-input-checkboxgroup shiny-input-container",
+      style = "width: 100%; margin: 0;",
+      items
     )
   })
   
@@ -1012,21 +1089,87 @@ server <- function(input, output, session) {
   output$dynamic_instruments_checkboxes <- renderUI({
     # Get the instruments options from your reactive component
     instruments_options <- server_data_instruments()
+    
     # Create internal values by converting each display name
     internal_values <- sapply(instruments_options, function(instrument) {
       tolower(gsub(" |-", "_", instrument))
     })
     
     # Create named vector where names are display labels and values are internal codes
-    # NOTE: The order is flipped here compared to the KPI implementation
     instruments_choices <- setNames(internal_values, instruments_options)
     
-    # Return the checkbox group with dynamic choices
-    checkboxGroupInput(
-      inputId = "id_instruments",
-      label = NULL,
-      choices = instruments_choices,
-      selected = NULL
+    # Define instrument-to-color mapping with a named list using HEX colors
+    instrument_colors <- list(
+      # Dark green (100%)
+      "Sustainability-linked bonds" = "#006400",
+      "Sustainability-linked loans" = "#006400",
+      
+      # Medium green (60%)
+      "Debt-for-nature swaps" = "#0a830a",
+      "Carbon credits" = "#0a830a",
+      
+      # Light green (10%)
+      "Biodiversity credits" = "#e8f5e8",
+      "Credit enhancement" = "#e8f5e8"
+    )
+    
+    # Default color for any instrument not in the mapping
+    default_color <- "#006400"
+    
+    # Generate the HTML for the two-column layout checkbox group
+    items <- lapply(seq_along(instruments_choices), function(i) {
+      name <- names(instruments_choices)[i]
+      value <- instruments_choices[i]
+      
+      # Get background color from the mapping, or use default
+      bg_color <- if(name %in% names(instrument_colors)) {
+        instrument_colors[[name]]
+      } else {
+        default_color
+      }
+      
+      # Determine text color (white for dark/medium green, black for light green)
+      text_color <- if(bg_color %in% c("#006400", "#0a830a")) {
+        "white"
+      } else {
+        "black"
+      }
+      
+      # Create a two-column row with white background for checkbox
+      tags$div(
+        class = "instrument-row",
+        style = "display: flex; width: 100%; border-bottom: 1px solid #e0e0e0;",
+        # Column 1: White background for checkbox
+        tags$div(
+          class = "checkbox-column",
+          style = "background-color: white; width: 50px; min-width: 50px; display: flex; justify-content: center; align-items: center;",
+          tags$input(
+            type = "checkbox",
+            name = "id_instruments", 
+            id = paste0("id_instruments_", i),
+            value = value,
+            style = "width: 20px; height: 20px; margin: 0;"
+          )
+        ),
+        # Column 2: Colored background for label
+        tags$div(
+          class = "label-column",
+          style = paste0("background-color: ", bg_color, "; flex-grow: 1; padding: 8px 10px; min-height: 36px; display: flex; align-items: center; color: ", text_color, ";"),
+          tags$label(
+            `for` = paste0("id_instruments_", i),
+            style = "display: block; margin-bottom: 0; font-weight: normal; word-wrap: break-word;",
+            name
+          )
+        )
+      )
+    })
+    
+    # Create a div with the correct inputId to allow Shiny to bind to it
+    div(
+      id = "id_instruments",
+      class = "form-group shiny-input-checkboxgroup shiny-input-container",
+      style = "width: 100%; margin: 0;",
+      items
     )
   })
   
@@ -1034,6 +1177,7 @@ server <- function(input, output, session) {
   output$dynamic_land_use_interventions_checkboxes <- renderUI({
     # Get the land use interventions from your reactive component
     lu_interventions_options <- server_data_lu_interventions()
+    
     # Create internal values by converting each display name
     internal_values <- sapply(lu_interventions_options, function(intervention) {
       tolower(gsub(" |-", "_", intervention))
@@ -1042,12 +1186,80 @@ server <- function(input, output, session) {
     # Create named vector where display names are the original values and internal values have underscores
     lu_interventions_choices <- setNames(internal_values, lu_interventions_options)
     
-    # Return the checkbox group with dynamic choices
-    checkboxGroupInput(
-      inputId = "land_use_interventions",
-      label = NULL,
-      choices = lu_interventions_choices,
-      selected = NULL
+    # Define intervention-to-color mapping with a named list using HEX colors that match our intent
+    intervention_colors <- list(
+      # Dark green (100%)
+      "Silvopasture" = "#006400", 
+      "Reduced-till farming" = "#006400", 
+      "Dams and seawalls" = "#006400", 
+      
+      # Medium green (60%)
+      "Restoring degraded forest" = "#0a830a", 
+      "Precision agriculture" = "#0a830a", 
+      "Agroforestry" = "#0a830a", 
+      
+      # Light green (10%)
+      "Large and medium scale irrigation" = "#e8f5e8", 
+      "Climate-resilient seeds" = "#e8f5e8" 
+    )
+    
+    # Default color for any intervention not in the mapping
+    default_color <- "#006400"
+    
+    # Generate the HTML for the two-column layout checkbox group
+    items <- lapply(seq_along(lu_interventions_choices), function(i) {
+      name <- names(lu_interventions_choices)[i]
+      value <- lu_interventions_choices[i]
+      
+      # Get background color from the mapping, or use default
+      bg_color <- if(name %in% names(intervention_colors)) {
+        intervention_colors[[name]]
+      } else {
+        default_color
+      }
+      
+      # Determine text color (white for dark/medium green, black for light green)
+      text_color <- if(bg_color %in% c("#006400", "#0a830a")) {
+        "white"
+      } else {
+        "black"
+      }
+      
+      # Create a two-column row with white background for checkbox
+      tags$div(
+        class = "intervention-row",
+        style = "display: flex; width: 100%; border-bottom: 1px solid #e0e0e0;",
+        # Column 1: White background for checkbox
+        tags$div(
+          class = "checkbox-column",
+          style = "background-color: white; width: 50px; min-width: 50px; display: flex; justify-content: center; align-items: center;",
+          tags$input(
+            type = "checkbox",
+            name = "land_use_interventions", 
+            id = paste0("land_use_interventions_", i),
+            value = value,
+            style = "width: 20px; height: 20px; margin: 0;"
+          )
+        ),
+        # Column 2: Colored background for label
+        tags$div(
+          class = "label-column",
+          style = paste0("background-color: ", bg_color, "; flex-grow: 1; padding: 8px 10px; min-height: 36px; display: flex; align-items: center; color: ", text_color, ";"),
+          tags$label(
+            `for` = paste0("land_use_interventions_", i),
+            style = "display: block; margin-bottom: 0; font-weight: normal; word-wrap: break-word;",
+            name
+          )
+        )
+      )
+    })
+    
+    # Create a div with the correct inputId to allow Shiny to bind to it
+    div(
+      id = "land_use_interventions",
+      class = "form-group shiny-input-checkboxgroup shiny-input-container",
+      style = "width: 100%; margin: 0;",
+      items
     )
   })
   
@@ -1055,6 +1267,7 @@ server <- function(input, output, session) {
   output$dynamic_protection_gap_interventions_checkboxes <- renderUI({
     # Get the protection gap interventions from your reactive component
     pg_interventions_options <- server_data_pg_interventions()
+    
     # Create internal values by converting each display name
     internal_values <- sapply(pg_interventions_options, function(intervention) {
       tolower(gsub(" |-", "_", intervention))
@@ -1063,14 +1276,82 @@ server <- function(input, output, session) {
     # Create named vector where display names are the original values and internal values have underscores
     pg_interventions_choices <- setNames(internal_values, pg_interventions_options)
     
-    # Return the checkbox group with dynamic choices
-    checkboxGroupInput(
-      inputId = "protection_gap_interventions",
-      label = NULL,
-      choices = pg_interventions_choices,
-      selected = NULL
+    # Define intervention-to-color mapping with a named list using HEX colors
+    intervention_colors <- list(
+      # Dark green (100%)
+      "Catastrophe bonds" = "#006400",
+      "Insurance premium subsidies" = "#006400",
+      
+      # Medium green (60%)
+      "Microinsurance" = "#0a830a",
+      "Cross-border reinsurance" = "#0a830a",
+      "Compulsory insurance coverage" = "#0a830a",
+      
+      # Light green (10%)
+      "Insurance bundling" = "#e8f5e8",
+      "Risk-based solvency capital requirements" = "#e8f5e8"
+    )
+    
+    # Default color for any intervention not in the mapping
+    default_color <- "#006400"
+    
+    # Generate the HTML for the two-column layout checkbox group
+    items <- lapply(seq_along(pg_interventions_choices), function(i) {
+      name <- names(pg_interventions_choices)[i]
+      value <- pg_interventions_choices[i]
+      
+      # Get background color from the mapping, or use default
+      bg_color <- if(name %in% names(intervention_colors)) {
+        intervention_colors[[name]]
+      } else {
+        default_color
+      }
+      
+      # Determine text color (white for dark/medium green, black for light green)
+      text_color <- if(bg_color %in% c("#006400", "#0a830a")) {
+        "white"
+      } else {
+        "black"
+      }
+      
+      # Create a two-column row with white background for checkbox
+      tags$div(
+        class = "intervention-row",
+        style = "display: flex; width: 100%; border-bottom: 1px solid #e0e0e0;",
+        # Column 1: White background for checkbox
+        tags$div(
+          class = "checkbox-column",
+          style = "background-color: white; width: 50px; min-width: 50px; display: flex; justify-content: center; align-items: center;",
+          tags$input(
+            type = "checkbox",
+            name = "protection_gap_interventions", 
+            id = paste0("protection_gap_interventions_", i),
+            value = value,
+            style = "width: 20px; height: 20px; margin: 0;"
+          )
+        ),
+        # Column 2: Colored background for label
+        tags$div(
+          class = "label-column",
+          style = paste0("background-color: ", bg_color, "; flex-grow: 1; padding: 8px 10px; min-height: 36px; display: flex; align-items: center; color: ", text_color, ";"),
+          tags$label(
+            `for` = paste0("protection_gap_interventions_", i),
+            style = "display: block; margin-bottom: 0; font-weight: normal; word-wrap: break-word;",
+            name
+          )
+        )
+      )
+    })
+    
+    # Create a div with the correct inputId to allow Shiny to bind to it
+    div(
+      id = "protection_gap_interventions",
+      class = "form-group shiny-input-checkboxgroup shiny-input-container",
+      style = "width: 100%; margin: 0;",
+      items
     )
   })
+  
 }
 
 # end: --------------------------------------------------------------------
