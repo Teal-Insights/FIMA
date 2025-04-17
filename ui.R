@@ -268,17 +268,18 @@ ui <- bslib::page_navbar(
             )
           ),
           # Instruments
-          # UI Component
+          # UI component
           conditionalPanel(
             "input.id_country !== null && input.id_country !== '' && 
-            input.kpi_selection.length > 0 && 
-            (
-              input.kpi_selection.includes('protection_gap') || 
-              input.kpi_selection.includes('land_use')
-            )",
+              input.kpi_selection.length > 0 && 
+              (
+                input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use')
+              )",
             tags$div(
-              class = "guide-box p-2 mb-0 border rounded",
-              h5("Instruments"),
+              class = "instruments-panel",
+              style = "background-color: #2c3e50; color: white; padding: 10px; border-radius: 5px;",
+              h4("Instruments", style = "margin-top: 5px; margin-bottom: 15px;"),
               uiOutput("dynamic_instruments_checkboxes")
             )
           ),
@@ -333,13 +334,13 @@ ui <- bslib::page_navbar(
                 ),
                 echarts4r::echarts4rOutput(outputId = "home_credit_rating", height = "230px") 
               ),
-              # General government gross debt (% NGDP)
+              # General government gross debt (% GDP)
               card(
                 full_screen = TRUE,
                 height = "400px", 
                 card_header(
                   # title
-                  "General government gross debt (% NGDP)",
+                  "General government gross debt (% GDP)",
                   # class
                   class = "bg-primary text-white",
                 ),

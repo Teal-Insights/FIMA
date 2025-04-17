@@ -532,9 +532,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result > 0) {
-        paste0("Notch Upgrade: ", result)
+        paste0(abs(result), " Notch Upgrade in Credit Rating")
       }else if (result < 0) {
-        paste0("Notch Downgrade: ", result)
+        paste0(abs(result), " Notch Downgrade in Credit Rating")
       }
     }
     
@@ -562,9 +562,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result < 0) {
-        paste0("% Points Decrease: ", result)
+        paste0(abs(result), "% Decrease in Debt to GDP")
       }else if (result > 0) {
-        paste0("% Points Increase: ", result)
+        paste0(abs(result), "% Increase in Debt to GDP")
       }
     }
     
@@ -589,9 +589,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result > 0) {
-        paste0("% Points Increase: ", result)
+        paste0(glue::glue("{abs(result)} % Increase in GDP Growth"))
       }else if (result > 0) {
-        paste0("% Points Decrease: ", result)
+        paste0(glue::glue("{abs(result)} % Decrease in GDP Growth"))
       }
     }
     
@@ -619,9 +619,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result < 0) {
-        paste0("% Points Decrease: ", result)
+        paste0(abs(result), "% Decrease in Interest Payments to Revenue")
       }else if (result > 0) {
-        paste0("% Points Increase: ", result)
+        paste0(abs(result), "% Increase in Interest Payments to Revenue")
       }
     }
     
@@ -649,9 +649,9 @@ server <- function(input, output, session) {
       result <- data %>% pull(net_baseline)
       # Return the value to display in the UI
       if (result < 0) {
-        paste0("% Points Decrease: ", result)
+        paste0(abs(result), "% Decrease in Primary Balance to GDP")
       }else if (result > 0) {
-        paste0("% Points Increase: ", result)
+        paste0(abs(result), "% Increase in Primary Balance to GDP")
       }
     }
     
