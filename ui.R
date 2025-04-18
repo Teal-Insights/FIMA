@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
 source(file = "components/ui/ui_footer_component.R")
 source(file = "components/ui/ui_documentation_component.R")
 source(file = "components/ui/ui_analysis_value_boxes.R")
+source(file = "components/ui/ui_contact_component.R")
 
 # pick --------------------------------------------------------------------
 # country
@@ -67,14 +68,21 @@ ui <- bslib::page_navbar(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_home.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_analysis.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_data.css"),
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles/documentation.css"),
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles/tab_contact.css"),
     
-    # CSS stylesheets
+    # navbar and footer
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/navbar.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/footer.css"),
     
-    # Commented stylesheets - uncomment when files are available
+    # integrated
     tags$link(rel = "stylesheet", type = "text/css", href = "styles/integrated.css"),
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles/documentation.css")
+    
+    # bootstrap
+    tags$link(
+      rel = "stylesheet", 
+      href = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    )
   ),
   
   # Add space between title and tabs
@@ -159,8 +167,10 @@ ui <- bslib::page_navbar(
               # step 1
               h6("Step 1 : Select Country", class = "top-header"),
               p(
-                "Under select country dropdown, select country of your choice, 
-                  it will display vulnerabilities it is exposed to."
+                "
+                  Under select country dropdown, select country of your choice, 
+                  it will display vulnerabilities it is exposed to.
+                "
               )
             )
           ),
@@ -178,11 +188,44 @@ ui <- bslib::page_navbar(
               # step 2
               h6("Step 2 : Check KPI(s) of choice", class = "top-header"),
               p(
-                "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
-                  This will enable respective intstruments and interventions to display thereafter."
+                " Under KPI checkboxes (on the Analysis tab), check KPI(s) of 
+                  choice. This will enable respective intstruments and 
+                  interventions to display thereafter. Each instrument and
+                  intervention is color code.
+                "
               ),
+              # about colors
+              h6("Color Legend", class = "top-header"),
+              div(
+                style = "display: flex; align-items: center; margin-bottom: 10px;",
+                div(
+                  class = "color-legend",
+                  style = "background-color: #006400; color: white;",
+                  tags$strong("Dark green")
+                ),
+                p("Most effective instrument(s) or intervention(s)")
+              ),
+              div(
+                style = "display: flex; align-items: center; margin-bottom: 10px;",
+                div(
+                  class = "color-legend",
+                  style = "background-color: #0a830a; color: white;",
+                  tags$strong("Medium green")
+                ),
+                p("Medium effective instrument(s) or intervention(s)")
+              ),
+              div(
+                style = "display: flex; align-items: center; margin-bottom: 10px;",
+                div(
+                  class = "color-legend",
+                  style = "background-color: #e8f5e8; color: black;",
+                  tags$strong("Light green")
+                ),
+                p("Least effective instrument(s) or intervention(s)")
+              ),
+              
               # step 3
-              h6("Step 3 : Interact with Intstruments and Interventions"),
+              h6("Step 3 : Interact with Intstruments and Intervention(s)"),
               p(
                 "
                   Once the intstruments and interventions are displayed, one 
@@ -245,8 +288,12 @@ ui <- bslib::page_navbar(
             tags$div(
               class = "home-box-container", 
               style = "position: relative; margin-top: 10px; padding-top: 1px;",
+              
               # Title that will appear on the border
-              tags$div(class = "home-box-title", textOutput(outputId = "about_country_header")),
+              tags$div(
+                class = "home-box-title", 
+                textOutput(outputId = "about_country_header")
+              ),
               
               # Content box
               tags$div(
@@ -266,6 +313,7 @@ ui <- bslib::page_navbar(
             tags$div(
               class = "home-box-container", 
               style = "position: relative; margin-top: 10px; padding-top: 1px;",
+              
               # Title that will appear on the border
               tags$div(class = "home-box-title", "Vulnerabilities"),
               
@@ -412,7 +460,9 @@ ui <- bslib::page_navbar(
                   # class
                   class = "bg-primary text-white",
                 ),
-                echarts4r::echarts4rOutput(outputId = "home_credit_rating", height = "230px") 
+                echarts4r::echarts4rOutput(
+                  outputId = "home_credit_rating", height = "230px"
+                ) 
               ),
               # General government gross debt (% GDP)
               card(
@@ -424,7 +474,9 @@ ui <- bslib::page_navbar(
                   # class
                   class = "bg-primary text-white",
                 ),
-                echarts4r::echarts4rOutput(outputId = "home_debt_ngdp", height = "230px") 
+                echarts4r::echarts4rOutput(
+                  outputId = "home_debt_ngdp", height = "230px"
+                ) 
               ),
               # Nominal GDP growth (%)
               card(
@@ -436,7 +488,9 @@ ui <- bslib::page_navbar(
                   # class
                   class = "bg-primary text-white",
                 ),
-                echarts4r::echarts4rOutput(outputId = "home_ngdp_growth", height = "230px") 
+                echarts4r::echarts4rOutput(
+                  outputId = "home_ngdp_growth", height = "230px"
+                ) 
               )
             )
           ),
@@ -450,26 +504,30 @@ ui <- bslib::page_navbar(
               # General government interest payments (% Revenue)
               card(
                 full_screen = TRUE,
-                height = "400px", # Add this line to set a fixed height
+                height = "400px", 
                 card_header(
                   # title
                   h6("General Government Interest Payments (% Revenue)"),
                   # class
                   class = "bg-primary text-white",
                 ),
-                echarts4r::echarts4rOutput(outputId = "home_ir_revenue", height = "230px") # Adjust chart height
+                echarts4r::echarts4rOutput(
+                  outputId = "home_ir_revenue", height = "230px"
+                )
               ),
               # Primary Balance, % of Nominal GDP
               card(
                 full_screen = TRUE,
-                height = "400px", # Add this line to set a fixed height
+                height = "400px",
                 card_header(
                   # title
                   h6("Primary Balance, % of Nominal GDP"),
                   # class
                   class = "bg-primary text-white",
                 ),
-                echarts4r::echarts4rOutput(outputId = "home_pb", height = "230px") # Adjust chart height
+                echarts4r::echarts4rOutput(
+                  outputId = "home_pb", height = "230px"
+                )
               )
             )
           )
@@ -491,7 +549,11 @@ ui <- bslib::page_navbar(
         # -------------------------------------------------------------------------
         sidebar = bslib::sidebar(
           bg = "#2c3e50",
+          id = "data_sidebar",
+          class = "tab-data-sidebar",
+          
           # overview note
+          
           conditionalPanel(
             condition = "
               (
@@ -522,6 +584,7 @@ ui <- bslib::page_navbar(
             # note
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
+              style = "background-color: #e8f5e8; color: black;",
               tags$p(h5(icon("info-circle"), "Overview:"), class = "fw-bold"),
               tags$p(
                 "In Alternative Scenario, the projections start from 2024. 
@@ -606,6 +669,15 @@ ui <- bslib::page_navbar(
     value = "docs",
     # Documentation component
     ui_documentation_component()
+  ),
+  # -------------------------------------------------------------------------
+  # Contact panel
+  # -------------------------------------------------------------------------
+  bslib::nav_panel(
+    title = "Contact",
+    value = "contact",
+    # contact component
+    ui_contact_component()
   ),
   # -------------------------------------------------------------------------
   # general footer

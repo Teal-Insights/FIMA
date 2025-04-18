@@ -1,4 +1,7 @@
- /* Improved header styling for reactable */
+/*---------------------------------------------------------------------------*/
+/*main content tables*/
+/*---------------------------------------------------------------------------*/
+/* Improved header styling for reactable */
 .rt-th {
   height: auto !important;
   min-height: 50px;
@@ -18,6 +21,15 @@
 .rt-tr:hover {
   background-color: #f0f5ff !important;
 }
+
+/*---------------------------------------------------------------------------*/
+/*sidebar*/
+/*---------------------------------------------------------------------------*/
+#data_sidebar {
+  border-radius: 16px;
+  background-color: white;
+}
+
 /*country*/
 .data-country {
   text-align: center;
@@ -45,6 +57,7 @@
     transition: background-color .25s;
 }
 
+/*download button hover*/
 .data-button:hover {
     background-color: #005735;
     border: 2px solid #0000;

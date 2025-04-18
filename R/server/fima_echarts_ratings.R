@@ -95,8 +95,8 @@ fima_echarts_ratings <- function(
   chart <- chart %>%
     e_y_axis(
       scale = FALSE,
-      min = y_min_value,
-      max = y_max_value,
+      min = y_min_value - 1,
+      max = y_max_value + 1,
       minInterval = 1,
       axisLabel = list(
         formatter = htmlwidgets::JS(paste0("
@@ -113,13 +113,7 @@ fima_echarts_ratings <- function(
     orient = "horizontal",
     x = "center",
     padding = c(5, 10, 5, 10)
-  )  %>% 
-    echarts4r::e_legend(
-      bottom = "0%",
-      orient = "horizontal",
-      x = "center",
-      padding = c(5, 10, 5, 10)
-    )
+  )
   
   # Add tooltip with custom formatter for credit ratings
   chart <- chart %>%

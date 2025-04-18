@@ -75,16 +75,15 @@ overview_content <- "
 # -------------------------------------------------------------------------
 key_equation_content <- "
   <h5>Debt Dynamics Equation:</h5>
-  \\[ d_t = \\frac{(1 + r_t)}{(1 + g_t)}d_{t-1} - pb_t \\]
+  \\[ b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
 
   <h5>Where:</h5>
   <ul>
-    <li>\\( d_t \\) = Debt as % of GDP at time t</li>
-    <li>\\( d_{t-1} \\) = Debt as % of GDP at time t - 1</li>
-    <li>\\( r_t \\) = Nominal interest rate (%) for time t</li>
-    <li>\\( g_t \\) = Nominal GDP growth (%) for time t</li>
-    <li>\\( pb_t \\) = Primary balance as % of GDP at time t</li>
-    <li>\\( t \\) = time period</li>
+    <li>\\( b_t \\) = Debt as % of GDP at time t</li>
+    <li>\\( b_{t+1} \\) = Debt as % of GDP at time t + 1</li>
+    <li>\\( r_t \\) = Nominal interest rate (%) at time t</li>
+    <li>\\( g_t \\) = Nominal GDP growth (%) at time t</li>
+    <li>\\( S_{t+1} \\) = Primary balance as % of GDP at time t + 1</li>
   </ul>"
 
 # -------------------------------------------------------------------------
@@ -104,22 +103,23 @@ methodology_content <- "
 
   <h5>Key Equations:</h5>
   <h6>1. Main Debt Dynamics Equation:</h6>
-  \\[ \\tag{1} d_t = \\frac{1 + r_t}{1 + g_t}d_{t-1} - pb_t \\]
+  \\[ \\tag{1} b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
 
   <h6>3. Policy-Adjusted Forecast (%) Calculations:</h6>
   \\[ \\tag{3a} r_t^{\\text{Policy-Adjusted Forecast (%)}} = r_t^{\\text{Baseline (%)}} + r_t^{\\text{Policy shock (%)}} \\]
   \\[ \\tag{3b} g_t^{\\text{Policy-Adjusted Forecast (%)}} = g_t^{\\text{Baseline (%)}} + g_t^{\\text{Policy shock (%)}} \\]
-  \\[ \\tag{3c} pb_t^{\\text{Policy-Adjusted Forecast (%)}} = pb_t^{\\text{Baseline (%)}} + pb_t^{\\text{Policy shock (%)}} \\]
+  \\[ \\tag{3c} S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}} = S_{t+1}^{\\text{Baseline (%)}} + S_{t+1}^{\\text{Policy shock (%)}} \\]
 
   <h5>Where:</h5>
   <ul>
-    <li>\\( d_t \\) = Public-debt-to-GDP ratio at time t</li>
-    <li>\\( r_t \\) = Nominal interest rate (%)</li>
-    <li>\\( g_t \\) = Nominal GDP growth (yoy%)</li>
-    <li>\\( pb_t \\) = Primary-Balance-to-GDP ratio</li>
-    <li>\\( r_t^{\\text{Policy-Adjusted Forecast (%)}}, g_t^{\\text{Policy-Adjusted Forecast (%)}}, pb_t^{\\text{Policy-Adjusted Forecast (%)}} \\) = Policy-Adjusted Forecast (%) values</li>
-    <li>\\( r_t^{\\text{Baseline (%)}}, g_t^{\\text{Baseline (%)}}, pb_t^{\\text{Baseline (%)}} \\) = Baseline (%) values</li>
-    <li>\\( r_t^{\\text{Policy shock (%)}}, g_t^{\\text{Policy shock (%)}}, pb_t^{\\text{Policy shock (%)}} \\) = Policy shock (%) values</li>
+    <li>\\( b_t \\) = Debt as % of GDP at time t</li>
+    <li>\\( b_{t+1} \\) = Debt as % of GDP at time t + 1</li>
+    <li>\\( r_t \\) = Nominal interest rate (%) at time t</li>
+    <li>\\( g_t \\) = Nominal GDP growth (%) at time t</li>
+    <li>\\( S_{t+1} \\) = Primary balance as % of GDP at time t + 1</li>
+    <li>\\( r_t^{\\text{Policy-Adjusted Forecast (%)}}, g_t^{\\text{Policy-Adjusted Forecast (%)}}, S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}} \\) = Policy-Adjusted Forecast (%) values</li>
+    <li>\\( r_t^{\\text{Baseline (%)}}, g_t^{\\text{Baseline (%)}}, S_{t+1}^{\\text{Baseline (%)}} \\) = Baseline (%) values</li>
+    <li>\\( r_t^{\\text{Policy shock (%)}}, g_t^{\\text{Policy shock (%)}}, S_{t+1}^{\\text{Policy shock (%)}} \\) = Policy shock (%) values</li>
     <li>Policy shocks for Nominal interest rate (%),Nominal GDP growth (yoy%) and primary balance 
       are obtained by summing up all the interventions that affect a give 
       variable. For instance, Nominal interest will be impacted by financial
@@ -136,7 +136,7 @@ methodology_content <- "
   shock values for each respective variable. The resulting final 
   values (\\(r_t^{\\text{Policy-Adjusted Forecast 
   (%)}}, g_t^{\\text{Policy-Adjusted Forecast (%)}}, 
-  pb_t^{\\text{Policy-Adjusted Forecast (%)}}\\)) are then input into the main 
+  S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}}\\)) are then input into the main 
   debt dynamics equation (1) to generate the debt projection under the specified 
   Alternative Scenario.</p>"
 

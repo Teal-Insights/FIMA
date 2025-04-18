@@ -1,17 +1,16 @@
 
 # start: ------------------------------------------------------------------
 fima_echarts_main <- function(
-    data,                   # Data frame containing the data
-    x_col,                  # Column name for x-axis
-    y_col,                  # Column name for y-axis values
-    group_col = NULL,       # Optional column name for grouping (faceting)
-    group_levels = NULL,    # Optional custom ordering for group levels
-    title = NULL,           # Optional chart title
-    x_axis_name = "",       # Optional x-axis label
-    y_axis_name = "",       # Optional y-axis label
-    tooltip_formatter = NULL, # Optional custom tooltip formatter (JavaScript)
-    legend_position = "bottom", # Legend position: "top", "bottom", "left", "right"
-    chart_type = "line"     # Chart type: "line", "bar", "scatter", etc.
+    data,                   
+    x_col,                  
+    y_col,                  
+    group_col = NULL,       
+    group_levels = NULL,    
+    title = NULL,           
+    x_axis_name = "",       
+    y_axis_name = "",       
+    tooltip_formatter = NULL, 
+    chart_type = "line"
 ) {
   # Load required packages
   require(echarts4r)
@@ -85,35 +84,13 @@ fima_echarts_main <- function(
     )
   
   # Configure legend
-  if (legend_position == "bottom") {
-    chart <- chart %>% echarts4r::e_legend(
+  chart <- chart %>% 
+    echarts4r::e_legend(
       bottom = "0%",
       orient = "horizontal",
       x = "center",
       padding = c(5, 10, 5, 10)
     )
-  } else if (legend_position == "top") {
-    chart <- chart %>% echarts4r::e_legend(
-      top = "0%",
-      orient = "horizontal",
-      x = "center",
-      padding = c(5, 10, 5, 10)
-    )
-  } else if (legend_position == "left") {
-    chart <- chart %>% echarts4r::e_legend(
-      left = "0%",
-      orient = "vertical",
-      y = "center",
-      padding = c(5, 10, 5, 10)
-    )
-  } else if (legend_position == "right") {
-    chart <- chart %>% echarts4r::e_legend(
-      right = "0%",
-      orient = "vertical",
-      y = "center",
-      padding = c(5, 10, 5, 10)
-    )
-  }
   
   # Add tooltip
   if (is.null(tooltip_formatter)) {

@@ -76,3 +76,15 @@
   margin-top: 0.8em;
   margin-bottom: 0.4em;
 }
+
+/*---------------------------------------------------------------------------*/
+/*color legend*/
+/*---------------------------------------------------------------------------*/
+.color-legend {
+  width: 120px; 
+  height: 30px; 
+  margin-right: 10px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}

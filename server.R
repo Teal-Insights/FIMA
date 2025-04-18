@@ -122,6 +122,23 @@ server <- function(input, output, session) {
       unique() %>% 
       sort()
   })
+  
+  # selected color code
+  server_data_color_code <- reactive({
+    readxl::read_excel(
+      path = "data-raw/FIMA_APP.xlsx",
+      sheet = "ColorCode") %>% 
+      filter(country == input$id_country) %>% 
+      mutate(
+        picked_color = case_when(
+          color_type == "Dark green" ~ "#006400",
+          color_type == "Medium green" ~ "#0a830a",
+          color_type == "Light green" ~ "#e8f5e8",
+          .default = "#006400"
+        )
+      )
+  })
+  
   # baseline data
   server_data_baseline <- reactive({
     fima_baseline_scenario(
@@ -1175,8 +1192,12 @@ server <- function(input, output, session) {
   
   # land use
   output$dynamic_land_use_interventions_checkboxes <- renderUI({
+    # getting data
+    data_colors_interventions <- server_data_color_code() %>% 
+      filter(kpi == "Land Use")
     # Get the land use interventions from your reactive component
-    lu_interventions_options <- server_data_lu_interventions()
+    lu_interventions_options <- data_colors_interventions %>% 
+      pull(interventions)
     
     # Create internal values by converting each display name
     internal_values <- sapply(lu_interventions_options, function(intervention) {
@@ -1186,22 +1207,11 @@ server <- function(input, output, session) {
     # Create named vector where display names are the original values and internal values have underscores
     lu_interventions_choices <- setNames(internal_values, lu_interventions_options)
     
-    # Define intervention-to-color mapping with a named list using HEX colors that match our intent
-    intervention_colors <- list(
-      # Dark green (100%)
-      "Silvopasture" = "#006400", 
-      "Reduced-till farming" = "#006400", 
-      "Dams and seawalls" = "#006400", 
-      
-      # Medium green (60%)
-      "Restoring degraded forest" = "#0a830a", 
-      "Precision agriculture" = "#0a830a", 
-      "Agroforestry" = "#0a830a", 
-      
-      # Light green (10%)
-      "Large and medium scale irrigation" = "#e8f5e8", 
-      "Climate-resilient seeds" = "#e8f5e8" 
-    )
+    # Define intervention-to-color 
+    intervention_names <- data_colors_interventions %>% pull(interventions)
+    intervention_picked_colors <- data_colors_interventions %>% pull(picked_color)
+    intervention_colors <- setNames(as.list(intervention_picked_colors), intervention_names)
+    
     
     # Default color for any intervention not in the mapping
     default_color <- "#006400"
@@ -1265,8 +1275,13 @@ server <- function(input, output, session) {
   
   # protection gap
   output$dynamic_protection_gap_interventions_checkboxes <- renderUI({
+    # getting data
+    data_colors_interventions <- server_data_color_code() %>% 
+      filter(kpi == "Protection Gap")
+    
     # Get the protection gap interventions from your reactive component
-    pg_interventions_options <- server_data_pg_interventions()
+    pg_interventions_options <- data_colors_interventions %>% 
+      pull(interventions)
     
     # Create internal values by converting each display name
     internal_values <- sapply(pg_interventions_options, function(intervention) {
@@ -1276,21 +1291,10 @@ server <- function(input, output, session) {
     # Create named vector where display names are the original values and internal values have underscores
     pg_interventions_choices <- setNames(internal_values, pg_interventions_options)
     
-    # Define intervention-to-color mapping with a named list using HEX colors
-    intervention_colors <- list(
-      # Dark green (100%)
-      "Catastrophe bonds" = "#006400",
-      "Insurance premium subsidies" = "#006400",
-      
-      # Medium green (60%)
-      "Microinsurance" = "#0a830a",
-      "Cross-border reinsurance" = "#0a830a",
-      "Compulsory insurance coverage" = "#0a830a",
-      
-      # Light green (10%)
-      "Insurance bundling" = "#e8f5e8",
-      "Risk-based solvency capital requirements" = "#e8f5e8"
-    )
+    # Define intervention-to-color 
+    intervention_names <- data_colors_interventions %>% pull(interventions)
+    intervention_picked_colors <- data_colors_interventions %>% pull(picked_color)
+    intervention_colors <- setNames(as.list(intervention_picked_colors), intervention_names)
     
     # Default color for any intervention not in the mapping
     default_color <- "#006400"
