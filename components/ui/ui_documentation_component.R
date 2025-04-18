@@ -12,89 +12,61 @@ create_section_card <- function(title, content) {
   )
 }
 
-# Content sections as separate variables for better maintainability
-
 # -------------------------------------------------------------------------
 # Overview content
 # -------------------------------------------------------------------------
 overview_content <- "
+  <h5>Development Status</h2>
   <p>
-    The FIMA Explorer helps analyze how innovative policy interventions can 
-    affect a country's debt sustainability. It builds upon the IMF's debt dynamics 
-    framework to project how debt-to-GDP ratios evolve under different scenarios, 
-    with a special focus on climate finance mechanisms and sustainable agriculture 
-    initiatives.
+    The FIMA Explorer is currently in <strong>prototype stage</strong>. This means:
   </p>
-  
-  <h5>How It Works</h5>
-  
-  <h6><b>1. Starting Point: Baseline</b></h6>
-  <ul>
-    <li>Nominal GDP growth (%)</li>
-    <li>Primary fiscal balance(%)</li>
-    <li>Government debt levels (%)</li>
-    <li>Nominal Interest rate (%)</li>
-  </ul>
-  
-  <h6><b>2. Policy Adjustments</b></h6>
+  <ol>
+    <li><strong>Illustrative Data</strong>: All countries, vulnerabilities, and impact values are representative examples, not accurate forecasts. The three demo countries (\"Ruritania\", etc.) are fictional but inspired by real macroeconomic patterns.</li>
+    <li><strong>Simplified Modeling</strong>: The relationships between interventions and macroeconomic outcomes are based on generalized assumptions rather than rigorously calibrated models.</li>
+    <li><strong>Conceptual Workflow</strong>: While the current version demonstrates the user journey, future versions will maintain this approach of providing initial assessments before detailed country-specific analysis.</li>
+  </ol>
+
+  <h5>Assessment Framework</h2>
   <p>
-    The main variables: Nominal GDP growth (%), Primary fiscal balance(%) and 
-    Nominal Interest rate (%) are adjusted to obtain Policy shock values which 
-    are added to the Baseline Scenario values to obtain final values
-    (Policy adjusted values).
+    The FIMA Explorer is designed as a first-step assessment tool that:
   </p>
-  <ul>
-    <li>Nominal GDP growth (%)</li>
-    <li>Primary fiscal balance(%)</li>
-    <li>Nominal Interest rate (%)</li>
-  </ul>
-  
+  <ol>
+    <li><strong>Maps vulnerabilities</strong> to identify relevant climate and nature KPIs</li>
+    <li><strong>Links interventions</strong> to these KPIs</li>
+    <li><strong>Estimates potential impacts</strong> on key macrofiscal variables</li>
+    <li><strong>Projects effects</strong> on debt sustainability and credit metrics</li>
+  </ol>
+
+  <h5>Development Roadmap</h2>
   <p>
-    The tool allows users to test how implementing specific interventions across 
-    Key Performing Indicators might impact these variables:
+    This tool represents the first step in a multi-phase approach:
   </p>
-  
-  <h6><b>Protection Gap Interventions</b></h6>
-  <ul>
-    <li><b>Catastrophe Bonds</b>: Model how issuing Catastrophe bonds affects borrowing costs and fiscal resilience</li>
-    <li><b>Insurance Premium Subsidies</b>: Analyze fiscal impacts of subsidizing climate risk insurance</li>
-    <li><b>Microinsurance</b>: Estimate how expanding coverage reduces contingent liabilities</li>
-    <li><b>Cross-border Reinsurance</b>: Evaluate effects of international risk-pooling mechanisms</li>
-    <li><b>Compulsory Insurance Coverage</b>: Project impacts of mandatory climate risk coverage</li>
-    <li><b>Insurance Bundling</b>: Model efficiency gains from integrated insurance products</li>
-    <li><b>Risk-based Solvency Capital Requirements</b>: Assess financial stability improvements</li>
-  </ul>
-  
-  <h6><b>Land Use / Regenerative Agriculture Initiatives</b></h6>
-  <ul>
-    <li><b>Silvopasture</b>: Calculate productivity gains from integrated forestry-livestock systems</li>
-    <li><b>Reduced-Till Farming</b>: Estimate cost savings and yield improvements</li>
-    <li><b>Climate-resilient Seeds</b>: Project agricultural output stability during extreme weather</li>
-    <li><b>Managed Grazing</b>: Model sustainable livestock production improvements</li>
-    <li><b>Biological Fertilization</b>: Analyze cost reductions and export value improvements</li>
-    <li><b>Polyculture & Crop Rotation</b>: Assess productivity and input cost impacts</li>
-    <li><b>Organic Certification Practices</b>: Evaluate premium pricing and market access benefits</li>
-    <li><b>Integrated Pest Management</b>: Calculate input cost reductions and yield stability</li>
-  </ul>
-  
-  <h6><b>3. Resulting Projections</b></h6>
+  <ol>
+    <li><strong>Current phase</strong>: Illustrative prototype with representative examples</li>
+    <li><strong>Next phase</strong>: Integration of generalized but empirically-based intervention impact models</li>
+    <li><strong>Future phase</strong>: Capacity for country-specific customization and calibration</li>
+    <li><strong>Final phase</strong>: Full integration with DSA frameworks and credit rating methodologies</li>
+  </ol>
+
+  <h5>Understanding the Results</h2>
   <p>
-    The tool combines baseline values with policy adjustments to show how debt 
-    trajectories might change. This helps answer questions like:
+    Even in its final form, results from this tool should be interpreted as:
   </p>
   <ul>
-    <li>How might catastrophe bonds reduce fiscal volatility following natural disasters?</li>
-    <li>What debt sustainability improvements could result from agricultural transformation programs?</li>
-    <li>How do climate-resilient investments affect long-term growth and borrowing costs?</li>
-    <li>Which combination of protection mechanisms and agricultural innovations creates optimal debt sustainability?</li>
+    <li><strong>Directional guidance</strong> on which interventions may offer the greatest credit-relevant benefits</li>
+    <li><strong>Starting points</strong> for more detailed economic modeling</li>
+    <li><strong>Order-of-magnitude estimates</strong> rather than precise predictions</li>
   </ul>
-  
-  <h5>Important Notes</h5>
+
+  <h5>Providing Feedback</h2>
+  <p>
+    Your insights are crucial to ensuring this tool evolves to meet real analytical needs. We're particularly interested in:
+  </p>
   <ul>
-    <li>This tool provides a simplified but rigorous starting point for analyzing climate finance interventions</li>
-    <li>Results should be interpreted as illustrative projections, not precise forecasts</li>
-    <li>The model captures direct fiscal effects but may not fully account for all socioeconomic co-benefits</li>
-    <li>For detailed country analysis, this tool should complement rather than replace full DSA frameworks</li>
+    <li>Is the conceptual workflow intuitive and valuable?</li>
+    <li>What additional features would make this tool more useful for your work?</li>
+    <li>What metrics and interventions should be prioritized in future development?</li>
+    <li>How could this tool complement your existing analytical processes?</li>
   </ul>
 "
 
@@ -173,7 +145,7 @@ ui_documentation_component <- function() {
   card_body(
     div(
       class = "container",
-      create_section_card("Overview", overview_content),
+      create_section_card("About This Prototype", overview_content),
       create_section_card("Key Equation", key_equation_content),
       create_section_card("Methodology", methodology_content)
     )
