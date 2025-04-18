@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 8px;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .bullet-point {
@@ -12,6 +12,18 @@
   color: #0aad18;
 }
 
+/*---------------------------------------------------------------------------*/
+/*Purpose of This Tool*/
+/*---------------------------------------------------------------------------*/
+.green-bullets li {
+  color: #0aad18;
+}
+
+.green-bullets li span {
+  color: black;
+  font-size: 1.1em;
+}
+    
 /*title on border*/
 .home-box-container {
   position: relative;
@@ -44,15 +56,20 @@
   font-size: 1.2em;
 }
 
-.home-box h5 {
+.home-box h6 {
   font-weight: 600;
 }
 
+.top-header {
+  padding-top: 12px;
+}
+/*---------------------------------------------------------------------------*/
 /*all paragraphs*/
+/*---------------------------------------------------------------------------*/
 .steps p {
   color: #000c;
   margin-bottom: 8px;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 .steps h5 {
   font-weight: 600;

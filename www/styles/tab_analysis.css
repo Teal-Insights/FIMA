@@ -8,7 +8,7 @@
 /* Tighten header and data cells */
 .custom-value-box .rt-th,
 .custom-value-box .rt-td {
-  padding: 2px 4px !important;  /* Very tight padding */
+  padding: 2px 4px !important;
   margin: 0 !important;
   border-right: none !important;
 }

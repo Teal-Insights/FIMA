@@ -69,7 +69,9 @@
   overflow: visible !important;
   height: auto !important;
 }
-
+/*---------------------------------------------------------------------------*/
+/*screen sizes*/
+/*---------------------------------------------------------------------------*/
 @media screen and (max-width: 768px) {
   .container {
     padding: 15px;

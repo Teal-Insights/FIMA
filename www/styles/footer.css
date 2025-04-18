@@ -13,7 +13,6 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  /* Remove gap from container */
 }
 
 .footer-link {
@@ -32,7 +31,9 @@
   border: none;
 }
 
+/*---------------------------------------------------------------------------*/
 /* Use consistent margins for spacing */
+/*---------------------------------------------------------------------------*/
 .logo-link:first-child {
   margin-right: 40px; 
 }
@@ -46,10 +47,11 @@
   color: #FFFFFF;
   height: auto;
   border: none;
-  margin-left: 40px; 
+  margin-left: 15px; 
 }
-
+/*---------------------------------------------------------------------------*/
 /* Media queries for small screens */
+/*---------------------------------------------------------------------------*/
 @media screen and (max-width: 480px) {
   .custom-footer {
     padding: 8px;
