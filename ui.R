@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
   library(bslib)
   library(shinyWidgets)
   library(DT)
-  library(shinyjs)  # Added to the main imports since it's used in the UI
+  library(shinyjs)
 })
 
 # components
@@ -113,18 +113,37 @@ ui <- bslib::page_navbar(
             # Content box
             tags$div(
               class = "home-box p-2 mb-0 border rounded steps",
+              tags$h6("Welcome to the FIMA Explorer (PROTOTYPE)", class = "top-header"),
+              p("This web application demonstrates how the Financial Materiality Assessment (FIMA) framework can help countries identify and prioritize nature-based interventions with potential fiscal and economic benefits."),
+              tags$h6("Important Note on Data"),
+              p("The countries, scenarios, and numerical impacts shown in this prototype are ", tags$strong("illustrative only"), ". They are designed to demonstrate the workflow and potential of the FIMA approach rather than provide precise forecasts."),
+              tags$h6("Purpose of This Tool"),
+              tags$ul(
+                class = "green-bullets",
+                tags$li(
+                  span("Provide a standardized framework for assessing intervention impacts")
+                ),
+                tags$li(
+                  span("Demonstrate how climate and nature KPIs can be linked to sovereign financial metrics")
+                ),
+                tags$li(
+                  span("Offer a starting point for deeper country-specific analysis")
+                ),
+                tags$li(
+                  span("Help prioritize interventions based on credit relevance")
+                )
+              ),
               p(
-                "Financial Materiality Assessment (FIMA) Explorer App helps to 
-                  analysis the impact of interventions based on their
-                  Key Performance Indicators (KPIs) on key indicators such as:
-                  Credit Rating, Debt-GDP ratio, %, Nominal GDP growth (%),
-                  Interest Payments % Revenue and Primary Balance, % of Nominal 
-                  GDP. For instance, does a country benefit from improved 
-                  Protection Gap / Land use in terms of improved Credit Rating, 
-                  lower Debt-GDP ratio, %, as well well increased Nominal GDP 
-                  growth (%).
-                "
-              )
+                "Even as this tool evolves, it will continue to provide 
+                order-of-magnitude approximations as a first step before 
+                detailed economic analysis on a country-specific basis.
+                " 
+              ),
+              p(
+                "We welcome your feedback on how this assessment framework 
+                could better support your planning and decision-making 
+                processes."
+                )
             )
           ),
           # home tab with title on border
@@ -138,7 +157,7 @@ ui <- bslib::page_navbar(
             tags$div(
               class = "home-box steps",
               # step 1
-              h5("Step 1 : Select Country"),
+              h6("Step 1 : Select Country", class = "top-header"),
               p(
                 "Under select country dropdown, select country of your choice, 
                   it will display vulnerabilities it is exposed to."
@@ -157,16 +176,20 @@ ui <- bslib::page_navbar(
             tags$div(
               class = "home-box steps",
               # step 2
-              h5("Step 2 : Check KPI(s) of choice"),
+              h6("Step 2 : Check KPI(s) of choice", class = "top-header"),
               p(
                 "Under KPI checkboxes (on the Analysis tab), check KPI(s) of choice. 
                   This will enable respective intstruments and interventions to display thereafter."
               ),
               # step 3
-              h5("Step 3 : Interact with Intstruments and Interventions"),
+              h6("Step 3 : Interact with Intstruments and Interventions"),
               p(
-                "Once the intstruments and interventions are displayed, one can start checking them 
-                  and then check the charts in 'Analysis' tab to see if there is any deviation."
+                "
+                  Once the intstruments and interventions are displayed, one 
+                  can start checking them and then check the charts in", 
+                  tags$strong("Analysis"), "tab to see if there is any 
+                  deviation.
+                "
               )
             )
           )
@@ -299,12 +322,14 @@ ui <- bslib::page_navbar(
           ),
           # Instruments
           conditionalPanel(
-          "input.id_country !== null && input.id_country !== '' && 
-            input.kpi_selection.length > 0 && 
-            (
-              input.kpi_selection.includes('protection_gap') || 
-              input.kpi_selection.includes('land_use')
-            )",
+            "
+              (input.id_country !== null && input.id_country !== '') && 
+              (input.kpi_selection.length > 0) && 
+              (
+                input.kpi_selection.includes('protection_gap') || 
+                input.kpi_selection.includes('land_use')
+              )
+            ",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               style = "padding: 0 !important; overflow: hidden;",
@@ -320,12 +345,12 @@ ui <- bslib::page_navbar(
           ),
           # land use intervetnions checkbox
           conditionalPanel(
-            "input.id_country !== null && input.id_country !== '' && 
+            "(
+              input.id_country !== null && input.id_country !== '' && 
               input.kpi_selection.length > 0 && 
-              (
-                input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use')
-              )",
+              input.kpi_selection.includes('land_use')
+             )
+            ",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               style = "padding: 0 !important; overflow: hidden; background-color: #2c3e50;",
@@ -340,9 +365,12 @@ ui <- bslib::page_navbar(
           ),
           # protection gap interventions checkbox
           conditionalPanel(
-            "input.id_country !== null && input.id_country !== '' && 
+            "(
+              input.id_country !== null && input.id_country !== '' && 
               input.kpi_selection.length > 0 && 
-              input.kpi_selection.includes('protection_gap')",
+              input.kpi_selection.includes('protection_gap')
+             )
+            ",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               style = "padding: 0 !important; overflow: hidden; background-color: #2c3e50;",
@@ -380,7 +408,7 @@ ui <- bslib::page_navbar(
                 height = "400px", 
                 card_header(
                   # title
-                  "Credit rating",
+                  h6("Credit Rating"),
                   # class
                   class = "bg-primary text-white",
                 ),
@@ -392,7 +420,7 @@ ui <- bslib::page_navbar(
                 height = "400px", 
                 card_header(
                   # title
-                  "General government gross debt (% GDP)",
+                  h6("General Government Gross Debt (% GDP)"),
                   # class
                   class = "bg-primary text-white",
                 ),
@@ -404,7 +432,7 @@ ui <- bslib::page_navbar(
                 height = "400px", 
                 card_header(
                   # title
-                  "Nominal GDP growth (%)",
+                  h6("Nominal GDP Growth (%)"),
                   # class
                   class = "bg-primary text-white",
                 ),
@@ -425,7 +453,7 @@ ui <- bslib::page_navbar(
                 height = "400px", # Add this line to set a fixed height
                 card_header(
                   # title
-                  "General government interest payments (% Revenue)",
+                  h6("General Government Interest Payments (% Revenue)"),
                   # class
                   class = "bg-primary text-white",
                 ),
@@ -437,7 +465,7 @@ ui <- bslib::page_navbar(
                 height = "400px", # Add this line to set a fixed height
                 card_header(
                   # title
-                  "Primary Balance, % of Nominal GDP",
+                  h6("Primary Balance, % of Nominal GDP"),
                   # class
                   class = "bg-primary text-white",
                 ),
@@ -465,18 +493,32 @@ ui <- bslib::page_navbar(
           bg = "#2c3e50",
           # overview note
           conditionalPanel(
-            condition = "input.id_country !== null && 
-               input.id_country !== '' && 
-               input.kpi_selection.length > 0 && 
-               (input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use')) &&
-               (input.protection_gap_interventions.length > 0 || 
-                input.land_use_interventions.length > 0)",
+            condition = "
+              (
+               input.id_country !== null && input.id_country !== ''
+              )",
+            
             # country
             tags$span(
               class = "data-country",
               textOutput(outputId = "data_check_country")
-            ),
+            )
+          ),
+          # download data
+          conditionalPanel(
+            condition = "
+              (
+               input.id_country !== null && input.id_country !== ''
+              ) &&
+             (
+               input.kpi_selection.includes('protection_gap') || 
+               input.kpi_selection.includes('land_use')
+              ) &&
+              (
+               input.protection_gap_interventions.length > 0 || 
+               input.land_use_interventions.length > 0
+              )",
+            
             # note
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
@@ -486,17 +528,8 @@ ui <- bslib::page_navbar(
                 The values before 2024 in Alternative Scenarios are baseline 
                 values."
               )
-            )
-          ),
-          # download data
-          conditionalPanel(
-            condition = "input.id_country !== null && 
-               input.id_country !== '' && 
-               input.kpi_selection.length > 0 && 
-               (input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use')) &&
-               (input.protection_gap_interventions.length > 0 || 
-                input.land_use_interventions.length > 0)",
+            ),
+            # download button
             tags$div(
               class = "guide-box p-2 mb-0",
               downloadButton(
@@ -523,7 +556,7 @@ ui <- bslib::page_navbar(
               full_screen = TRUE,
               card_header(
                 # title
-                "Baseline Scenario data",
+                h6("Baseline Scenario data"),
                 # class
                 class = "bg-primary text-white",
               ),
@@ -534,20 +567,25 @@ ui <- bslib::page_navbar(
           ),
           # Alternative Scenario data
           conditionalPanel(
-            condition = "input.id_country !== null && 
-               input.id_country !== '' && 
-               input.kpi_selection.length > 0 && 
-               (input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use')) &&
-               (input.protection_gap_interventions.length > 0 || 
-                input.land_use_interventions.length > 0)",
+            condition = "
+              (
+               input.id_country !== null && input.id_country !== ''
+              ) &&
+             (
+               input.kpi_selection.includes('protection_gap') || 
+               input.kpi_selection.includes('land_use')
+              ) &&
+              (
+               input.protection_gap_interventions.length > 0 || 
+               input.land_use_interventions.length > 0
+              )",
             
-            # table output
+            # alternative scenario table output
             card(
               full_screen = TRUE,
               card_header(
                 # title
-                "Alternative Scenario data",
+                h6("Alternative Scenario data"),
                 # class
                 class = "bg-primary text-white",
               ),
@@ -569,7 +607,11 @@ ui <- bslib::page_navbar(
     # Documentation component
     ui_documentation_component()
   ),
-  
-  # Add footer
+  # -------------------------------------------------------------------------
+  # general footer
+  # -------------------------------------------------------------------------
   footer = ui_footer_component()
 )
+
+# ends: -------------------------------------------------------------------
+
