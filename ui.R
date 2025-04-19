@@ -370,13 +370,9 @@ ui <- bslib::page_navbar(
           ),
           # Instruments
           conditionalPanel(
-            "
+            condition = "
               (input.id_country !== null && input.id_country !== '') && 
-              (input.kpi_selection.length > 0) && 
-              (
-                input.kpi_selection.includes('protection_gap') || 
-                input.kpi_selection.includes('land_use')
-              )
+              (input.kpi_selection.length > 0)
             ",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
