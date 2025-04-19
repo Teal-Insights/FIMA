@@ -68,7 +68,7 @@
 /*country*/
 .analysis-country {
   text-align: center;
-  background-color: #e8f5e8;
+  background-color: #2c3e50;
   border: 2px solid #0000;
   border-radius: 6px;
   align-self: flex-start;
@@ -76,7 +76,7 @@
   font-size: 1.2em;
   font-weight: 600;
   line-height: 0.8;
-  color: black;
+  color: white;
 }
 /*instruments*/
 /* Ensure proper binding for Shiny */
