@@ -53,14 +53,49 @@ server <- function(input, output, session) {
   
   # Create reactive value to track all selected instruments
   selected_instruments <- reactive({
-    # Check if either protection_gap or land_use KPIs are selected
-    if (any(c("protection_gap", "land_use") %in% input$kpi_selection)) {
-      # Return the selected instruments from the id_instruments checkboxGroupInput
-      input$id_instruments
-    } else {
-      # Return empty vector if neither KPI is selected
-      c()
-    }
+    input$id_instruments
+  })
+  
+  # Check if any interventions or instruments are selected
+  has_selections <- reactive({
+    length(selected_interventions()) > 0 || length(selected_instruments()) > 0
+  })
+  
+  # interventions and instruments data
+  get_interventions_and_instruments <- reactive({
+    # Require at least one selection
+    req(has_selections())
+    
+    # Get both inputs
+    interventions <- selected_interventions()
+    instruments <- selected_instruments()
+    
+    # Convert NULL to empty vector for safety
+    if (is.null(interventions)) interventions <- c()
+    if (is.null(instruments)) instruments <- c()
+    
+    # Call the function with the sanitized inputs
+    result <- fima_data_interventions(
+      chosen_interventions = interventions,
+      chosen_instruments = instruments
+    )
+    # return results
+    return(result)
+  })
+  
+  # Apply interventions and instruments to calculate policy shocks
+  server_data_interventions <- reactive({
+    # Require both baseline data and interventions
+    req(server_data_baseline())
+    req(get_interventions_and_instruments())
+    
+    # Apply function with current selections
+    fima_server_interventions(
+      data_baseline = server_data_baseline(),
+      data_interventions = get_interventions_and_instruments(),
+      chosen_interventions = selected_interventions(),
+      chosen_instruments = selected_instruments()
+    )
   })
   
   # -------------------------------------------------------------------------
@@ -68,56 +103,62 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   # selected country
   server_selected_country <- reactive({input$id_country})
+  
   # One off adjustment to stock of debt (LCU billions)
   server_data_adjustment <- reactive({
     fima_adjustment(by_country = server_selected_country())
   })
+  
   # selected KPIs
   server_data_kpi <- reactive({
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Interventions") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       pull(type) %>% 
       unique() %>% 
       sort()
   })
+  
   # selected land use interventions
   server_data_lu_interventions <- reactive({
     interventions <- readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Interventions") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       filter(type == "Land Use") %>% 
       pull(intervention) %>% 
       unique()
     return(interventions)
   })
+  
   # selected protection gap interventions
   server_data_pg_interventions <- reactive({
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Interventions") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       filter(type == "Protection Gap") %>% 
       pull(intervention) %>% 
       unique()
   })
+  
   # selected instruments
   server_data_instruments <- reactive({
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Instruments") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       pull(instrument) %>% 
       unique()
   })
+  
   # selected vulnerabilities
   server_data_vulnerabilities <- reactive({
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "Vulnerabilities") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       pull(vulnerability) %>% 
       unique() %>% 
       sort()
@@ -128,7 +169,7 @@ server <- function(input, output, session) {
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "ColorCode") %>% 
-      filter(country == input$id_country) %>% 
+      filter(country == server_selected_country()) %>% 
       mutate(
         picked_color = case_when(
           color_type == "Dark green" ~ "#006400",
@@ -146,29 +187,14 @@ server <- function(input, output, session) {
     )
   })
   
-  # interventions and instruments data
-  get_interventions_and_instruments <- reactive({
-    req(selected_interventions())
-    fima_data_interventions(
-      chosen_interventions = selected_interventions(), 
-      chosen_instruments = selected_instruments()
-    )
-  })
-  
-  # Apply interventions and instruments to calculate policy shocks
-  server_data_interventions <- interventions_results <- reactive({
-    req(server_data_baseline(), get_interventions_and_instruments())
-    # Apply function with current selections
-    fima_server_interventions(
-      data_baseline = server_data_baseline(),
-      data_interventions = get_interventions_and_instruments(),
-      chosen_interventions = selected_interventions(),
-      chosen_instruments = selected_instruments()
-    )
-  })
   # alternative scenario data
   server_data_alternative <- reactive({
+    # Only compute alternative scenario if we have interventions and valid data
+    req(has_selections())
     req(server_data_interventions())
+    req(server_data_baseline())
+    req(server_data_adjustment())
+    
     fima_alternative_scenario(
       data_baseline = server_data_baseline(),
       data_interventions = server_data_interventions(),
@@ -176,6 +202,9 @@ server <- function(input, output, session) {
     )
   })
   
+  # -------------------------------------------------------------------------
+  # server data alternative viz
+  # -------------------------------------------------------------------------
   server_data_alternative_viz <- reactive({
     # Try to generate the alternative visualization data
     result <- tryCatch(
@@ -211,13 +240,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # observe({
-  #   data <- server_data_alternative_viz()
-  #   print("Class of server_data_alternative_viz:")
-  #   print(class(data))
-  #   # If you want to see structure as well
-  #   str(data)
-  # })
   # -------------------------------------------------------------------------
   # analysis tab - value boxes
   # -------------------------------------------------------------------------
@@ -681,7 +703,7 @@ server <- function(input, output, session) {
     readxl::read_excel(
       path = "data-raw/FIMA_APP.xlsx",
       sheet = "About") %>% 
-      filter(country == input$id_country)
+      filter(country == server_selected_country())
   })
   # header
   output$about_country_header <- renderText({
