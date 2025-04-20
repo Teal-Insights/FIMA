@@ -201,34 +201,48 @@ ui <- bslib::page_navbar(
                       code.
                     "
                   ),
+                  
                   # about colors
+                  
                   h6("Color Legend", class = "top-header"),
+                  
+                  # Dark green legend
                   div(
-                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    class = "legend-item",
                     div(
-                      class = "color-legend",
-                      style = "background-color: #006400; color: white;",
-                      tags$strong("Dark green")
+                      class = "color-legend legend-dark-green",
+                      "Dark green"
                     ),
-                    p("Most effective instrument(s) or intervention(s)")
+                    div(
+                      class = "legend-text",
+                      "Most effective instrument(s) or intervention(s)"
+                    )
                   ),
+                  
+                  # Medium green legend
                   div(
-                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    class = "legend-item",
                     div(
-                      class = "color-legend",
-                      style = "background-color: #0a830a; color: white;",
-                      tags$strong("Medium green")
+                      class = "color-legend legend-medium-green",
+                      "Medium green"
                     ),
-                    p("Medium effective instrument(s) or intervention(s)")
+                    div(
+                      class = "legend-text",
+                      "Medium effective instrument(s) or intervention(s)"
+                    )
                   ),
+                  
+                  # Light green legend
                   div(
-                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    class = "legend-item",
                     div(
-                      class = "color-legend",
-                      style = "background-color: #e8f5e8; color: black;",
-                      tags$strong("Light green")
+                      class = "color-legend legend-light-green",
+                      "Light green"
                     ),
-                    p("Least effective instrument(s) or intervention(s)")
+                    div(
+                      class = "legend-text",
+                      "Least effective instrument(s) or intervention(s)"
+                    )
                   ),
                   
                   # step 3

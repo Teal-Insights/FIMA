@@ -4,7 +4,6 @@
   padding: 0 !important;
   width: 100% !important;
 }
-
 /* Tighten header and data cells */
 .custom-value-box .rt-th,
 .custom-value-box .rt-td {
@@ -12,24 +11,20 @@
   margin: 0 !important;
   border-right: none !important;
 }
-
 /* Remove extra right padding from the last column */
 .custom-value-box .rt-th:last-child,
 .custom-value-box .rt-td:last-child {
   padding-right: 2px !important;
 }
-
 /* No spacing between columns */
 .custom-value-box .rt-resizable-header-content {
   padding: 0 !important;
 }
-
 /* Ensure rows take full width */
 .custom-value-box .rt-tr {
   flex: 1 0 auto !important;
   padding: 0 !important;
 }
-
 /* sidebar */
 #analysis_sidebar {
   max-height: 1000px; 
@@ -39,13 +34,11 @@
   border-radius: 16px;
   background-color: white;
 }
-
 /*title on border*/
 .analysis-box-container {
   position: relative;
   margin-top: 15px;
 }
-
 .analysis-box-title {
   position: absolute;
   top: -10px;
@@ -57,14 +50,12 @@
   color: white;
   z-index: 1;
 }
-
 .analysis-box {
   border: 1px solid #dee2e6;
   border-radius: 0.25rem;
   padding: 10px;
   position: relative;
 }
-
 /*country*/
 .analysis-country {
   text-align: center;
@@ -84,31 +75,26 @@
   width: 100% !important;
   margin: 0 !important;
 }
-
 /* Fix checkbox alignment */
 .checkbox-column input[type='checkbox'] {
   margin: 0;
   border: 1px solid #ccc;
 }
-
 /* Fixed width for checkbox column */
 .checkbox-column {
   width: 50px !important;
   min-width: 50px !important;
   flex-shrink: 0;
 }
-
 /* Allow label to wrap */
 .label-column label {
   word-wrap: break-word;
   word-break: break-word;
 }
-
 /* Ensure consistent row height */
 .instrument-row {
   min-height: 36px;
 }
-
 /* Container styling */
 .guide-box {
   border-radius: 10px !important;
