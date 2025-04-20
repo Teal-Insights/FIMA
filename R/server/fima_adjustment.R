@@ -9,7 +9,3 @@ fima_adjustment <- function(by_country){
 }
 
 # end: --------------------------------------------------------------------
-
-df_adjustment <- readxl::read_excel(
-  path = "data-raw/FIMA_APP.xlsx",
-  sheet = "Adjustment")

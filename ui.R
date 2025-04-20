@@ -87,7 +87,6 @@ ui <- bslib::page_navbar(
   
   # Add space between title and tabs
   bslib::nav_spacer(),
-  
   # Theme configuration
   theme = bslib::bs_theme(
     version = 5,
@@ -111,128 +110,141 @@ ui <- bslib::page_navbar(
           fillable = TRUE,
           fill = TRUE,
           # About the app with title on border
-          tags$div(
-            class = "home-box-container", 
-            style = "position: relative; margin-top: 10px; padding-top: 1px;",
-            
-            # Title that will appear on the border
-            tags$div(class = "home-box-title", "About the app"),
-            
-            # Content box
-            tags$div(
-              class = "home-box p-2 mb-0 border rounded steps",
-              tags$h6("Welcome to the FIMA Explorer (PROTOTYPE)", class = "top-header"),
-              p("This web application demonstrates how the Financial Materiality Assessment (FIMA) framework can help countries identify and prioritize nature-based interventions with potential fiscal and economic benefits."),
-              tags$h6("Important Note on Data"),
-              p("The countries, scenarios, and numerical impacts shown in this prototype are ", tags$strong("illustrative only"), ". They are designed to demonstrate the workflow and potential of the FIMA approach rather than provide precise forecasts."),
-              tags$h6("Purpose of This Tool"),
-              tags$ul(
-                class = "green-bullets",
-                tags$li(
-                  span("Provide a standardized framework for assessing intervention impacts")
-                ),
-                tags$li(
-                  span("Demonstrate how climate and nature KPIs can be linked to sovereign financial metrics")
-                ),
-                tags$li(
-                  span("Offer a starting point for deeper country-specific analysis")
-                ),
-                tags$li(
-                  span("Help prioritize interventions based on credit relevance")
-                )
-              ),
-              p(
-                "Even as this tool evolves, it will continue to provide 
+          navset_tab(
+            nav_panel(
+              title = "About the app", 
+              tags$div(
+                class = "home-box-container", 
+                style = "position: relative; margin-top: 10px; padding-top: 1px;",
+                
+                # Title that will appear on the border
+                tags$div(class = "home-box-title", "About the app"),
+                
+                # Content box
+                tags$div(
+                  class = "home-box p-2 mb-0 border rounded steps",
+                  tags$h6("Welcome to the FIMA Explorer (PROTOTYPE)", class = "top-header"),
+                  p("This web application demonstrates how the Financial Materiality Assessment (FIMA) framework can help countries identify and prioritize nature-based interventions with potential fiscal and economic benefits."),
+                  tags$h6("Important Note on Data"),
+                  p("The countries, scenarios, and numerical impacts shown in this prototype are ", tags$strong("illustrative only"), ". They are designed to demonstrate the workflow and potential of the FIMA approach rather than provide precise forecasts."),
+                  tags$h6("Purpose of This Tool"),
+                  tags$ul(
+                    class = "green-bullets",
+                    tags$li(
+                      span("Provide a standardized framework for assessing intervention impacts")
+                    ),
+                    tags$li(
+                      span("Demonstrate how climate and nature KPIs can be linked to sovereign financial metrics")
+                    ),
+                    tags$li(
+                      span("Offer a starting point for deeper country-specific analysis")
+                    ),
+                    tags$li(
+                      span("Help prioritize interventions based on credit relevance")
+                    )
+                  ),
+                  p(
+                    "Even as this tool evolves, it will continue to provide 
                 order-of-magnitude approximations as a first step before 
                 detailed economic analysis on a country-specific basis.
                 " 
-              ),
-              p(
-                "We welcome your feedback on how this assessment framework 
+                  ),
+                  p(
+                    "We welcome your feedback on how this assessment framework 
                 could better support your planning and decision-making 
                 processes."
+                  )
                 )
-            )
-          ),
-          # home tab with title on border
-          tags$div(
-            class = "home-box-container", 
-            style = "position: relative; margin-top: 10px; padding-top: 1px;",
-            # Title that will appear on the border
-            tags$div(class = "home-box-title", "Home tab"),
-            
-            # Content box
-            tags$div(
-              class = "home-box steps",
-              # step 1
-              h6("Step 1 : Select Country", class = "top-header"),
-              p(
-                "
+              )
+            ),
+            nav_panel(
+              title = "Guide on using the app", 
+              # home tab with title on border
+              tags$div(
+                class = "home-box-container", 
+                style = "position: relative; margin-top: 10px; padding-top: 1px;",
+                # Title that will appear on the border
+                tags$div(class = "home-box-title", "Home tab"),
+                
+                # Content box
+                tags$div(
+                  class = "home-box steps",
+                  # step 1
+                  h6("Step 1 : Select Country", class = "top-header"),
+                  p(
+                    "
                   Under select country dropdown, select country of your choice, 
                   it will display vulnerabilities it is exposed to.
                 "
-              )
-            )
-          ),
-          # Analysis tab box with title on border
-          tags$div(
-            class = "home-box-container", 
-            style = "position: relative; margin-top: 10px; padding-top: 1px;",
-            
-            # Title that will appear on the border
-            tags$div(class = "home-box-title", "Analysis tab"),
-            
-            # Content box
-            tags$div(
-              class = "home-box steps",
-              # step 2
-              h6("Step 2 : Check KPI(s) of choice", class = "top-header"),
-              p(
-                " Under KPI checkboxes (on the Analysis tab), check KPI(s) of 
-                  choice. This will enable respective intstruments and 
-                  interventions to display thereafter. Each instrument and
-                  intervention is color code.
-                "
+                  )
+                )
               ),
-              # about colors
-              h6("Color Legend", class = "top-header"),
-              div(
-                style = "display: flex; align-items: center; margin-bottom: 10px;",
-                div(
-                  class = "color-legend",
-                  style = "background-color: #006400; color: white;",
-                  tags$strong("Dark green")
-                ),
-                p("Most effective instrument(s) or intervention(s)")
-              ),
-              div(
-                style = "display: flex; align-items: center; margin-bottom: 10px;",
-                div(
-                  class = "color-legend",
-                  style = "background-color: #0a830a; color: white;",
-                  tags$strong("Medium green")
-                ),
-                p("Medium effective instrument(s) or intervention(s)")
-              ),
-              div(
-                style = "display: flex; align-items: center; margin-bottom: 10px;",
-                div(
-                  class = "color-legend",
-                  style = "background-color: #e8f5e8; color: black;",
-                  tags$strong("Light green")
-                ),
-                p("Least effective instrument(s) or intervention(s)")
-              ),
-              
-              # step 3
-              h6("Step 3 : Interact with Intstruments and Intervention(s)"),
-              p(
-                "
+              # Analysis tab box with title on border
+              tags$div(
+                class = "home-box-container", 
+                style = "position: relative; margin-top: 10px; padding-top: 1px;",
+                
+                # Title that will appear on the border
+                tags$div(class = "home-box-title", "Analysis tab"),
+                
+                # Content box
+                tags$div(
+                  class = "home-box steps",
+                  # step 2
+                  h6("Step 2 : Check KPI(s) of choice", class = "top-header"),
+                  p(
+                    "
+                      Under KPI checkboxes on the ", tags$strong("Analysis"),
+                      " tab, check KPI(s) of choice. This will enable 
+                      respective intstruments and interventions to display 
+                      thereafter. Each instrument and intervention is color 
+                      code.
+                    "
+                  ),
+                  # about colors
+                  h6("Color Legend", class = "top-header"),
+                  div(
+                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    div(
+                      class = "color-legend",
+                      style = "background-color: #006400; color: white;",
+                      tags$strong("Dark green")
+                    ),
+                    p("Most effective instrument(s) or intervention(s)")
+                  ),
+                  div(
+                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    div(
+                      class = "color-legend",
+                      style = "background-color: #0a830a; color: white;",
+                      tags$strong("Medium green")
+                    ),
+                    p("Medium effective instrument(s) or intervention(s)")
+                  ),
+                  div(
+                    style = "display: flex; align-items: center; margin-bottom: 10px;",
+                    div(
+                      class = "color-legend",
+                      style = "background-color: #e8f5e8; color: black;",
+                      tags$strong("Light green")
+                    ),
+                    p("Least effective instrument(s) or intervention(s)")
+                  ),
+                  
+                  # step 3
+                  h6(
+                    style = "padding-top: 12px;",
+                    "Step 3 : Interact with Intstruments and Intervention(s)"
+                    ),
+                  p(
+                    "
                   Once the intstruments and interventions are displayed, one 
-                  can start checking them and then check the charts in", 
-                  tags$strong("Analysis"), "tab to see if there is any 
+                  can start checking them and then check the charts on", 
+                    tags$strong("Analysis"), "tab to see if there is any 
                   deviation.
                 "
+                  )
+                )
               )
             )
           )
@@ -260,7 +272,7 @@ ui <- bslib::page_navbar(
               class = "home-box steps",
               style = "padding-top: 10px; padding-bottom: 0px;", 
               div(
-                style = "margin-top: 5px; margin-bottom: 0px;", 
+                style = "margin-top: 5px; margin-bottom: 5px;", 
                 shinyWidgets::pickerInput(
                   inputId = "id_country",
                   label = NULL,
@@ -275,7 +287,8 @@ ui <- bslib::page_navbar(
                     title = "Select country..."
                   ),
                   multiple = FALSE,
-                  selected = NULL
+                  selected = NULL,
+                  width = "300px"
                 )
               )
             )
@@ -370,10 +383,7 @@ ui <- bslib::page_navbar(
           ),
           # Instruments
           conditionalPanel(
-            condition = "
-              (input.id_country !== null && input.id_country !== '') && 
-              (input.kpi_selection.length > 0)
-            ",
+            condition = "(input.kpi_selection.length > 0)",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               style = "padding: 0 !important; overflow: hidden;",
@@ -389,8 +399,8 @@ ui <- bslib::page_navbar(
           ),
           # land use intervetnions checkbox
           conditionalPanel(
-            "(
-              input.id_country !== null && input.id_country !== '' && 
+            condition = 
+              "(
               input.kpi_selection.length > 0 && 
               input.kpi_selection.includes('land_use')
              )
@@ -409,12 +419,11 @@ ui <- bslib::page_navbar(
           ),
           # protection gap interventions checkbox
           conditionalPanel(
-            "(
-              input.id_country !== null && input.id_country !== '' && 
-              input.kpi_selection.length > 0 && 
-              input.kpi_selection.includes('protection_gap')
-             )
-            ",
+            condition = 
+              "(
+                input.kpi_selection.length > 0 && 
+                input.kpi_selection.includes('protection_gap')
+              )",
             tags$div(
               class = "guide-box p-2 mb-0 border rounded",
               style = "padding: 0 !important; overflow: hidden; background-color: #2c3e50;",
@@ -566,15 +575,12 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "
               (
-               input.id_country !== null && input.id_country !== ''
-              ) &&
-             (
-               input.kpi_selection.includes('protection_gap') || 
-               input.kpi_selection.includes('land_use')
+               input.kpi_selection.length > 0
               ) &&
               (
                input.protection_gap_interventions.length > 0 || 
-               input.land_use_interventions.length > 0
+               input.land_use_interventions.length > 0 ||
+               input.id_instruments.length > 0
               )",
             
             # note
@@ -628,15 +634,12 @@ ui <- bslib::page_navbar(
           conditionalPanel(
             condition = "
               (
-               input.id_country !== null && input.id_country !== ''
-              ) &&
-             (
-               input.kpi_selection.includes('protection_gap') || 
-               input.kpi_selection.includes('land_use')
+               input.kpi_selection.length > 0
               ) &&
               (
                input.protection_gap_interventions.length > 0 || 
-               input.land_use_interventions.length > 0
+               input.land_use_interventions.length > 0 ||
+               input.id_instruments.length > 0
               )",
             
             # alternative scenario table output

@@ -16,7 +16,7 @@ create_section_card <- function(title, content) {
 # Overview content
 # -------------------------------------------------------------------------
 overview_content <- "
-  <h5>Development Status</h2>
+  <h5>Development Status</h5>
   <p>
     The FIMA Explorer is currently in <strong>prototype stage</strong>. This means:
   </p>
@@ -26,7 +26,7 @@ overview_content <- "
     <li><strong>Conceptual Workflow</strong>: While the current version demonstrates the user journey, future versions will maintain this approach of providing initial assessments before detailed country-specific analysis.</li>
   </ol>
 
-  <h5>Assessment Framework</h2>
+  <h5>Assessment Framework</h5>
   <p>
     The FIMA Explorer is designed as a first-step assessment tool that:
   </p>
@@ -37,7 +37,7 @@ overview_content <- "
     <li><strong>Projects effects</strong> on debt sustainability and credit metrics</li>
   </ol>
 
-  <h5>Development Roadmap</h2>
+  <h5>Development Roadmap</h5>
   <p>
     This tool represents the first step in a multi-phase approach:
   </p>
@@ -48,7 +48,7 @@ overview_content <- "
     <li><strong>Final phase</strong>: Full integration with DSA frameworks and credit rating methodologies</li>
   </ol>
 
-  <h5>Understanding the Results</h2>
+  <h5>Understanding the Results</h5>
   <p>
     Even in its final form, results from this tool should be interpreted as:
   </p>
@@ -58,7 +58,7 @@ overview_content <- "
     <li><strong>Order-of-magnitude estimates</strong> rather than precise predictions</li>
   </ul>
 
-  <h5>Providing Feedback</h2>
+  <h5>Providing Feedback</h5>
   <p>
     Your insights are crucial to ensuring this tool evolves to meet real analytical needs. We're particularly interested in:
   </p>
@@ -75,7 +75,9 @@ overview_content <- "
 # -------------------------------------------------------------------------
 key_equation_content <- "
   <h5>Debt Dynamics Equation:</h5>
-  \\[ b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
+  <div class='equation-container'>
+    \\[ b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
+  </div>
 
   <h5>Where:</h5>
   <ul>
@@ -96,32 +98,36 @@ methodology_content <- "
   government gross debt. This comprehensive framework enables researchers and 
   policymakers to analyze the evolution of public debt over time, taking into 
   account the complex interplay between economic growth, interest rates, and 
-  fiscal policy decisions. The methodology's strength lies in its ability to 
-  decompose debt dynamics into its constituent components, allowing for a 
-  detailed understanding of how different macroeconomic factors contribute to 
-  changes in the debt-to-GDP ratio.</p>
+  fiscal policy decisions.</p>
 
   <h5>Key Equations:</h5>
   <h6>1. Main Debt Dynamics Equation:</h6>
-  \\[ \\tag{1} b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
+  <div class='equation-container'>
+    \\[ \\tag{1} b_{t+1} = \\frac{(1 + r_t)}{(1 + g_t)}b_{t} - S_{t+1} \\]
+  </div>
 
   <h6>3. Policy-Adjusted Forecast (%) Calculations:</h6>
-  \\[ \\tag{3a} r_t^{\\text{Policy-Adjusted Forecast (%)}} = r_t^{\\text{Baseline (%)}} + r_t^{\\text{Policy shock (%)}} \\]
-  \\[ \\tag{3b} g_t^{\\text{Policy-Adjusted Forecast (%)}} = g_t^{\\text{Baseline (%)}} + g_t^{\\text{Policy shock (%)}} \\]
-  \\[ \\tag{3c} S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}} = S_{t+1}^{\\text{Baseline (%)}} + S_{t+1}^{\\text{Policy shock (%)}} \\]
+  <div class='equation-container policy-eq-fix'>
+    \\[ \\tag{3a} r_t^{\\text{Adj}} = r_t^{\\text{Base}} + r_t^{\\text{Shock}} \\]
+    \\[ \\tag{3b} g_t^{\\text{Adj}} = g_t^{\\text{Base}} + g_t^{\\text{Shock}} \\]
+    \\[ \\tag{3c} S_{t+1}^{\\text{Adj}} = S_{t+1}^{\\text{Base}} + S_{t+1}^{\\text{Shock}} \\]
+  </div>
 
   <h5>Where:</h5>
   <ul>
+    <li><strong>Adj</strong> = Policy-Adjusted Forecast (%)</li>
+    <li><strong>Base</strong> = Baseline (%)</li>
+    <li><strong>Shock</strong> = Policy shock (%)</li>
     <li>\\( b_t \\) = Debt as % of GDP at time t</li>
     <li>\\( b_{t+1} \\) = Debt as % of GDP at time t + 1</li>
     <li>\\( r_t \\) = Nominal interest rate (%) at time t</li>
     <li>\\( g_t \\) = Nominal GDP growth (%) at time t</li>
     <li>\\( S_{t+1} \\) = Primary balance as % of GDP at time t + 1</li>
-    <li>\\( r_t^{\\text{Policy-Adjusted Forecast (%)}}, g_t^{\\text{Policy-Adjusted Forecast (%)}}, S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}} \\) = Policy-Adjusted Forecast (%) values</li>
-    <li>\\( r_t^{\\text{Baseline (%)}}, g_t^{\\text{Baseline (%)}}, S_{t+1}^{\\text{Baseline (%)}} \\) = Baseline (%) values</li>
-    <li>\\( r_t^{\\text{Policy shock (%)}}, g_t^{\\text{Policy shock (%)}}, S_{t+1}^{\\text{Policy shock (%)}} \\) = Policy shock (%) values</li>
-    <li>Policy shocks for Nominal interest rate (%),Nominal GDP growth (yoy%) and primary balance 
-      are obtained by summing up all the interventions that affect a give 
+    <li>Policy-Adjusted Forecast (%) values are the final values after applying policy shocks</li>
+    <li>Baseline (%) values are the initial projected values</li>
+    <li>Policy shock (%) values represent the impact of specific interventions</li>
+    <li>Policy shocks for Nominal interest rate (%), Nominal GDP growth (yoy%) and primary balance 
+      are obtained by summing up all the interventions that affect a given 
       variable. For instance, Nominal interest will be impacted by financial
       related interventions from Protection GAP KPI.
     </li>
@@ -129,16 +135,13 @@ methodology_content <- "
 
   <h5>Debt Projection:</h5>
   <p>The final projection methodology incorporates policy shocks through 
-  equations (3a), (3b), and (3c), where Baseline (%) values for Nominal interest 
-  rate (%),Nominal GDP growth (yoy%) and primary balance are adjusted by 
-  shock values. These shock calculations are performed in percentage terms, 
+  equations (3a), (3b), and (3c), where Baseline (%) values are adjusted by 
+  shock values. These calculations are performed in percentage terms, 
   with the final shocked values representing the sum of Baseline (%) and policy 
   shock values for each respective variable. The resulting final 
-  values (\\(r_t^{\\text{Policy-Adjusted Forecast 
-  (%)}}, g_t^{\\text{Policy-Adjusted Forecast (%)}}, 
-  S_{t+1}^{\\text{Policy-Adjusted Forecast (%)}}\\)) are then input into the main 
-  debt dynamics equation (1) to generate the debt projection under the specified 
-  Alternative Scenario.</p>"
+  values are then input into the main debt dynamics equation (1) to generate 
+  the debt projection under the specified Alternative Scenario.</p>
+"
 
 # Main component function
 ui_documentation_component <- function() {
@@ -151,5 +154,4 @@ ui_documentation_component <- function() {
     )
   )
 }
-
 # ends: -------------------------------------------------------------------

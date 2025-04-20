@@ -42,7 +42,7 @@ server <- function(input, output, session) {
   # -------------------------------------------------------------------------
   # selected interventions and instruments
   # -------------------------------------------------------------------------
-  # Create reactive values to track all selected interventions and instruments
+  # Create reactive values to track all selected interventions
   selected_interventions <- reactive({
     # Combine all selected interventions from different KPIs
     c(
@@ -206,7 +206,7 @@ server <- function(input, output, session) {
   # server data alternative viz
   # -------------------------------------------------------------------------
   server_data_alternative_viz <- reactive({
-    # Try to generate the alternative visualization data
+    # generating the alternative visualization data
     result <- tryCatch(
       {
         data <- fima_alternative_viz(
