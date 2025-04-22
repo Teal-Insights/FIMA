@@ -18,12 +18,12 @@ create_section_card <- function(title, content) {
 overview_content <- "
   <h5>Development Status</h5>
   <p>
-    The FIMA Explorer is currently in <strong>prototype stage</strong>. This means:
+    The FIMA Explorer is currently a <strong>prototype stage</strong>. This means:
   </p>
   <ol>
-    <li><strong>Illustrative Data</strong>: All countries, vulnerabilities, and impact values are representative examples, not accurate forecasts. The three demo countries (\"Ruritania\", etc.) are fictional but inspired by real macroeconomic patterns.</li>
+    <li><strong>Illustrative Data</strong>: All countries, vulnerabilities, and impact values are for illustrative purposes only. The three demo countries are fictional and their data was modeled according to the description provided in the About box (Home tab).</li>
     <li><strong>Simplified Modeling</strong>: The relationships between interventions and macroeconomic outcomes are based on generalized assumptions rather than rigorously calibrated models.</li>
-    <li><strong>Conceptual Workflow</strong>: While the current version demonstrates the user journey, future versions will maintain this approach of providing initial assessments before detailed country-specific analysis.</li>
+    <li><strong>Conceptual Workflow</strong>: We want to test whether this is the best design for our users. We are interested in getting feedback on how to improve this tool. </li>
   </ol>
 
   <h5>Assessment Framework</h5>
@@ -43,8 +43,8 @@ overview_content <- "
   </p>
   <ol>
     <li><strong>Current phase</strong>: Illustrative prototype with representative examples</li>
-    <li><strong>Next phase</strong>: Integration of generalized but empirically-based intervention impact models</li>
-    <li><strong>Future phase</strong>: Capacity for country-specific customization and calibration</li>
+    <li><strong>Next phase</strong>: Integration of generalized and empirically-based intervention impact models</li>
+    <li><strong>Future phase</strong>: Country-specific customization and calibration</li>
     <li><strong>Final phase</strong>: Full integration with DSA frameworks and credit rating methodologies</li>
   </ol>
 
@@ -92,13 +92,14 @@ key_equation_content <- "
 # Methodology content
 # -------------------------------------------------------------------------
 methodology_content <- "
-  <p>The computation process for debt dynamics analysis is fundamentally grounded 
-  in three essential variables: Gross domestic product, current prices, General 
-  government primary net lending/borrowing (primary balance), Nominal interest rate (%) and General 
-  government gross debt. This comprehensive framework enables researchers and 
-  policymakers to analyze the evolution of public debt over time, taking into 
-  account the complex interplay between economic growth, interest rates, and 
-  fiscal policy decisions.</p>
+  <p>
+    The computation process for debt dynamics analysis is grounded on four 
+    variables: nominal GDP growth, general government primary balance, 
+    nominal interest rate and general government gross debt. This framework 
+    enables researchers and policymakers to analyze the evolution of public 
+    debt over time, taking into account the complex interplay between economic 
+    growth, interest rates and fiscal policy decisions.
+  </p>
 
   <h5>Key Equations:</h5>
   <h6>1. Main Debt Dynamics Equation:</h6>
@@ -115,9 +116,9 @@ methodology_content <- "
 
   <h5>Where:</h5>
   <ul>
-    <li><strong>Adj</strong> = Policy-Adjusted Forecast (%)</li>
-    <li><strong>Base</strong> = Baseline (%)</li>
-    <li><strong>Shock</strong> = Policy shock (%)</li>
+    <li><strong>Base</strong> = Baseline (%) is the trajectory of the variable without any shocks</li>
+    <li><strong>Shock</strong> = Policy shock (%) represents the impact of a specific intervention or instrument</li>
+    <li><strong>Adj</strong> = Policy-adjusted forecast (%) after applying policy shocks</li>
     <li>\\( b_t \\) = Debt as % of GDP at time t</li>
     <li>\\( b_{t+1} \\) = Debt as % of GDP at time t + 1</li>
     <li>\\( r_t \\) = Nominal interest rate (%) at time t</li>
@@ -126,21 +127,24 @@ methodology_content <- "
     <li>Policy-Adjusted Forecast (%) values are the final values after applying policy shocks</li>
     <li>Baseline (%) values are the initial projected values</li>
     <li>Policy shock (%) values represent the impact of specific interventions</li>
-    <li>Policy shocks for Nominal interest rate (%), Nominal GDP growth (yoy%) and primary balance 
-      are obtained by summing up all the interventions that affect a given 
-      variable. For instance, Nominal interest will be impacted by financial
-      related interventions from Protection GAP KPI.
+    <li>
+      Policy-adjusted forecast for nominal interest rate (%), nominal GDP 
+      growth (yoy%) and primary balance are obtained by summing up all the 
+      interventions and instruments (shocks) that affect the variable. For 
+      instance, nominal interest will be impacted by financial related 
+      interventions from Protection GAP KPI.
     </li>
   </ul>
 
   <h5>Debt Projection:</h5>
-  <p>The final projection methodology incorporates policy shocks through 
-  equations (3a), (3b), and (3c), where Baseline (%) values are adjusted by 
-  shock values. These calculations are performed in percentage terms, 
-  with the final shocked values representing the sum of Baseline (%) and policy 
-  shock values for each respective variable. The resulting final 
-  values are then input into the main debt dynamics equation (1) to generate 
-  the debt projection under the specified Alternative Scenario.</p>
+  <p>
+    The final projection methodology incorporates policy shocks through 
+    equations (3a), (3b), and (3c), where the baseline (%) is adjusted by 
+    shocks. These calculations are performed in percentage terms, with the 
+    policy-adjusted values representing the sum of baseline (%) plus the policy 
+    shocks. The policy-adjusted values are then put into the main debt dynamics 
+    equation (1) to generate the debt projection under the Alternative Scenario.
+  </p>
 "
 
 # Main component function

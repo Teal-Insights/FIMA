@@ -124,17 +124,31 @@ ui <- bslib::page_navbar(
                 tags$div(
                   class = "home-box p-2 mb-0 border rounded steps",
                   tags$h6("Welcome to the FIMA Explorer (PROTOTYPE)", class = "top-header"),
-                  p("This web application demonstrates how the Financial Materiality Assessment (FIMA) framework can help countries identify and prioritize nature-based interventions with potential fiscal and economic benefits."),
+                  p(
+                    "
+                      This web application demonstrates how the Financial 
+                      Materiality Assessment (FIMA) framework can help countries 
+                      identify and prioritize nature-based interventions with 
+                      potential fiscal and economic benefits.
+                    "
+                  ),
                   tags$h6("Important Note on Data"),
-                  p("The countries, scenarios, and numerical impacts shown in this prototype are ", tags$strong("illustrative only"), ". They are designed to demonstrate the workflow and potential of the FIMA approach rather than provide precise forecasts."),
+                  p(
+                    "
+                      The countries, scenarios, and numerical impacts shown in 
+                      this prototype are ", tags$strong("illustrative only"), ". 
+                      They are designed to demonstrate the workflow and 
+                      potential of the FIMA methodology.
+                    "
+                  ),
                   tags$h6("Purpose of This Tool"),
                   tags$ul(
                     class = "green-bullets",
                     tags$li(
-                      span("Provide a standardized framework for assessing intervention impacts")
+                      span("Provide a standardized framework for assessing interventions")
                     ),
                     tags$li(
-                      span("Demonstrate how climate and nature KPIs can be linked to sovereign financial metrics")
+                      span("Demonstrate how climate and nature KPIs can be linked to sovereign fiscal metrics")
                     ),
                     tags$li(
                       span("Offer a starting point for deeper country-specific analysis")
@@ -144,15 +158,18 @@ ui <- bslib::page_navbar(
                     )
                   ),
                   p(
-                    "Even as this tool evolves, it will continue to provide 
-                order-of-magnitude approximations as a first step before 
-                detailed economic analysis on a country-specific basis.
-                " 
+                    "
+                      This tool provides order-of-magnitude approximations as a 
+                      first step before detailed economic analysis on a 
+                      country-specific basis.
+                    " 
                   ),
                   p(
-                    "We welcome your feedback on how this assessment framework 
-                could better support your planning and decision-making 
-                processes."
+                    "
+                      We welcome your feedback on how this assessment framework 
+                      could better support your planning and decision-making 
+                      processes.
+                    "
                   )
                 )
               )
@@ -173,9 +190,9 @@ ui <- bslib::page_navbar(
                   h6("Step 1 : Select Country", class = "top-header"),
                   p(
                     "
-                  Under select country dropdown, select country of your choice, 
-                  it will display vulnerabilities it is exposed to.
-                "
+                      Under select country dropdown, select country of your choice, 
+                      it will display the vulnerabilities it is exposed to.
+                    "
                   )
                 )
               ),
@@ -194,11 +211,9 @@ ui <- bslib::page_navbar(
                   h6("Step 2 : Check KPI(s) of choice", class = "top-header"),
                   p(
                     "
-                      Under KPI checkboxes on the ", tags$strong("Analysis"),
-                      " tab, check KPI(s) of choice. This will enable 
-                      respective intstruments and interventions to display 
-                      thereafter. Each instrument and intervention is color 
-                      code.
+                      This will enable respective instruments and interventions 
+                      to display below. Each instrument and intervention is 
+                      color coded.
                     "
                   ),
                   
@@ -248,15 +263,14 @@ ui <- bslib::page_navbar(
                   # step 3
                   h6(
                     style = "padding-top: 12px;",
-                    "Step 3 : Interact with Intstruments and Intervention(s)"
+                    "Step 3 : Interact with Intstrument(s) and Intervention(s)"
                     ),
                   p(
                     "
-                  Once the intstruments and interventions are displayed, one 
-                  can start checking them and then check the charts on", 
-                    tags$strong("Analysis"), "tab to see if there is any 
-                  deviation.
-                "
+                      Once the instruments and interventions are displayed, one 
+                      can start checking them and see their effect on the fiscal 
+                      metrics to the right.
+                    "
                   )
                 )
               )
